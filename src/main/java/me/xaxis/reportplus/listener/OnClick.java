@@ -8,7 +8,8 @@ public class OnClick implements Listener {
 
     @EventHandler
     public void onInvClick(InventoryClickEvent event){
-
+        //Item Selection if name == reporttype value then execute corresponding thingy
+        //Report List access hashmap with name of report will be player UUID
     }
 
 }

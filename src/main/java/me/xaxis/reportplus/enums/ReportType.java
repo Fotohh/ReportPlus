@@ -17,25 +17,25 @@ public enum ReportType {
 
         switch (this){
             case BHOP -> {
-                return Material.valueOf( reportPlus.getConfig().getString("REPORT_MATERIAL_TYPE.BHOP"));
+                return Material.valueOf( reportPlus.getConfig().getString("REPORT_TYPE.BHOP.MATERIAL"));
             }
             case NUKER -> {
-                return Material.valueOf( reportPlus.getConfig().getString("REPORT_MATERIAL_TYPE.NUKER"));
+                return Material.valueOf( reportPlus.getConfig().getString("REPORT_TYPE.NUKER.MATERIAL"));
             }
             case AIMBOT -> {
-                return Material.valueOf( reportPlus.getConfig().getString("REPORT_MATERIAL_TYPE.AIMBOT"));
+                return Material.valueOf( reportPlus.getConfig().getString("REPORT_TYPE.AIMBOT.MATERIAL"));
             }
             case FLYING -> {
-                return Material.valueOf( reportPlus.getConfig().getString("REPORT_MATERIAL_TYPE.FLYING"));
+                return Material.valueOf( reportPlus.getConfig().getString("REPORT_TYPE.FLYING.MATERIAL"));
             }
             case KILLAURA -> {
-                return Material.valueOf( reportPlus.getConfig().getString("REPORT_MATERIAL_TYPE.KILLAURA"));
+                return Material.valueOf( reportPlus.getConfig().getString("REPORT_TYPE.KILLAURA.MATERIAL"));
             }
             case VELOCITY -> {
-                return Material.valueOf( reportPlus.getConfig().getString("REPORT_MATERIAL_TYPE.VELOCITY"));
+                return Material.valueOf( reportPlus.getConfig().getString("REPORT_TYPE.VELOCITY.MATERIAL"));
             }
             case AUTOCLICKING -> {
-                return Material.valueOf( reportPlus.getConfig().getString("REPORT_MATERIAL_TYPE.AUTOCLICKING"));
+                return Material.valueOf( reportPlus.getConfig().getString("REPORT_TYPE.AUTOCLICKING.MATERIAL"));
             }
             case default ->{
                 return null;

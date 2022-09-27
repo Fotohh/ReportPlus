@@ -25,6 +25,10 @@ public class ReportManager{
         reports.put(uuid, report);
     }
 
+    public static boolean contains(UUID playerUUID){
+        return reports.containsKey(playerUUID);
+    }
+
     public static void deleteReport(UUID uuid){
         reports.remove(uuid);
     }

@@ -6,7 +6,6 @@ import me.xaxis.reportplus.reports.ReportManager;
 import me.xaxis.reportplus.utils.ItemUtils;
 import me.xaxis.reportplus.utils.Utils;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
