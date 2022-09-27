@@ -40,6 +40,10 @@ public class ItemUtils {
         item.setItemMeta(itemMeta);
     }
 
+    public ItemStack i(){
+        return item;
+    }
+
 
 
 }
