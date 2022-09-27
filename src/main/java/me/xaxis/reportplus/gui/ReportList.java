@@ -16,9 +16,11 @@ import java.util.Date;
 public class ReportList implements GUI{
 
     private final Inventory i;
+    private final ReportPlus plugin;
 
     public ReportList(ReportPlus reportPlus, String title){
         i = Bukkit.createInventory(null, 6*9, Utils.chat(title));
+        this.plugin = reportPlus;
     }
 
     @Override
@@ -35,7 +37,7 @@ public class ReportList implements GUI{
     public void createItems() {
 
         for(Report report : ReportManager.getReports()){
-            ItemUtils item = new ItemUtils(Material.ANVIL);
+            ItemUtils item = new ItemUtils(report.getReportType().m(plugin));
 
             Date date = new Date(report.getTimestamp());
             item.lore("&7Report Type: &6" + report.getReportType().toString(),
