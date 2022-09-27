@@ -1,4 +1,4 @@
-package me.xaxis.reportplus.managers;
+package me.xaxis.reportplus.reports;
 
 import me.xaxis.reportplus.ReportPlus;
 import org.jetbrains.annotations.NotNull;
@@ -23,6 +23,10 @@ public class ReportManager{
 
     public static void addReport(Report report, UUID uuid){
         reports.put(uuid, report);
+    }
+
+    public static void deleteReport(UUID uuid){
+        reports.remove(uuid);
     }
 
     public static @NotNull ArrayList<Report> getReports(){

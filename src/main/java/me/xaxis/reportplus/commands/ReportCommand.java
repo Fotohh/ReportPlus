@@ -2,7 +2,7 @@ package me.xaxis.reportplus.commands;
 
 import me.xaxis.reportplus.ReportPlus;
 import me.xaxis.reportplus.enums.ReportType;
-import me.xaxis.reportplus.managers.Report;
+import me.xaxis.reportplus.reports.Report;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;

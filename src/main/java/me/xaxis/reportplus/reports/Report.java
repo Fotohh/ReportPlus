@@ -1,4 +1,4 @@
-package me.xaxis.reportplus.managers;
+package me.xaxis.reportplus.reports;
 
 import me.xaxis.reportplus.ReportPlus;
 import me.xaxis.reportplus.enums.ReportType;
@@ -11,7 +11,7 @@ public class Report{
 
     private final ReportPlus plugin;
 
-    private ConfigurationSection section;
+    private final ConfigurationSection section;
 
     public Report(@NotNull ReportPlus plugin, @NotNull UUID playerUUID, @NotNull UUID reporter, @NotNull ReportType reportType) {
 
@@ -38,15 +38,17 @@ public class Report{
         return UUID.fromString( section.getString("reporter_UUID") );
     }
     public ReportType getReportType(){
-        return ReportType.valueOf( section.getString("report_typea") );
+        return ReportType.valueOf( section.getString("report_type") );
     }
 
     public Report(@NotNull ReportPlus plugin, @NotNull UUID uuid){
+
         this.plugin = plugin;
 
         section = plugin.getReportYML().getFile().getConfigurationSection(uuid.toString());
 
         ReportManager.addReport(this, uuid);
+
     }
 
 

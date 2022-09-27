@@ -1,7 +1,7 @@
-package me.xaxis.reportplus.managers;
+package me.xaxis.reportplus.reports;
 
-import lombok.SneakyThrows;
 import me.xaxis.reportplus.ReportPlus;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
@@ -16,7 +16,6 @@ public class ReportYML {
         this.plugin = plugin;
     }
 
-    @SneakyThrows
     public void createFile(){
 
         if(!plugin.getDataFolder().exists()){
@@ -28,7 +27,11 @@ public class ReportYML {
 
         if(!file.exists()) file.mkdir();
 
-        yml.load(file);
+        try {
+            yml.load(file);
+        }catch (Exception ignored){
+            Bukkit.getServer().getConsoleSender().sendMessage("Failed to create Reports.yml");
+        }
 
     }
 
@@ -36,9 +39,12 @@ public class ReportYML {
         return yml;
     }
 
-    @SneakyThrows
-    public void save(){
-        yml.save(file);
+    public void save() {
+        try {
+            yml.save(file);
+        }catch (Exception ignored){
+            Bukkit.getServer().getConsoleSender().sendMessage("Failed to save Reports.yml");
+        }
     }
 
 }
