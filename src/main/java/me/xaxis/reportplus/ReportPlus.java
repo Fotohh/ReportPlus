@@ -2,8 +2,10 @@ package me.xaxis.reportplus;
 
 import me.xaxis.reportplus.reports.Report;
 import me.xaxis.reportplus.reports.ReportYML;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.IOException;
 import java.util.UUID;
 
 public class ReportPlus extends JavaPlugin {
@@ -16,8 +18,12 @@ public class ReportPlus extends JavaPlugin {
 
 
             saveDefaultConfig();
+        try {
             getReportYML().createFile();
-            registerReports();
+        } catch (IOException | InvalidConfigurationException e) {
+            throw new RuntimeException(e);
+        }
+        registerReports();
     }
 
     @Override

@@ -10,6 +10,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
+
 public class ReportCommand implements CommandExecutor {
 
     private final ReportPlus plugin;
@@ -35,7 +37,11 @@ public class ReportCommand implements CommandExecutor {
 
                     if(target!= null && target.isOnline()){
 
-                        Report report = new Report(plugin, target.getUniqueId(), player.getUniqueId(), ReportType.AUTOCLICKING);
+                        try {
+                            Report report = new Report(plugin, target.getUniqueId(), player.getUniqueId(), ReportType.AUTOCLICKING);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
 
                     }else{
                         //error

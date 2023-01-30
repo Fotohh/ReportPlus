@@ -5,6 +5,7 @@ import me.xaxis.reportplus.enums.ReportType;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.util.UUID;
 
 public class Report{
@@ -13,7 +14,7 @@ public class Report{
 
     private final ConfigurationSection section;
 
-    public Report(@NotNull ReportPlus plugin, @NotNull UUID playerUUID, @NotNull UUID reporter, @NotNull ReportType reportType) {
+    public Report(@NotNull ReportPlus plugin, @NotNull UUID playerUUID, @NotNull UUID reporter, @NotNull ReportType reportType) throws IOException {
 
         this.plugin = plugin;
 
@@ -23,6 +24,8 @@ public class Report{
         section.set("timestamp", System.currentTimeMillis());
         section.set("reporter_UUID", reporter.toString());
         section.set("report_type", reportType.toString());
+
+        plugin.getReportYML().save();
 
         ReportManager.addReport(this, playerUUID);
 
