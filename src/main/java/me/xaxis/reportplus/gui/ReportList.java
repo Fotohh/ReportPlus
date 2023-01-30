@@ -36,7 +36,7 @@ public class ReportList implements GUI{
     public void createItems() {
 
         for(Report report : ReportManager.getReports()){
-            ItemUtils item = new ItemUtils(report.getReportType().m(plugin));
+            ItemUtils item = new ItemUtils(report.getReportType().getMaterial(plugin));
 
             Date date = new Date(report.getTimestamp());
             item.lore("&7Report Type: &6" + report.getReportType().toString(),

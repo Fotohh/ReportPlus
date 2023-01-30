@@ -35,7 +35,7 @@ public class ReportSelection implements GUI{
     @Override
     public void createItems() {
         for(ReportType type : ReportType.values()){
-            ItemUtils item = new ItemUtils(type.m(plugin));
+            ItemUtils item = new ItemUtils(type.getMaterial(plugin));
             item.setTitle("&a" + type);
             getGUI().addItem(item.i());
         }

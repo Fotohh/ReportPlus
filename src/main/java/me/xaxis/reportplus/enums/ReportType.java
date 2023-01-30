@@ -13,7 +13,7 @@ public enum ReportType {
     KILLAURA,
     NUKER;
 
-    public Material m(ReportPlus reportPlus){
+    public Material getMaterial(ReportPlus reportPlus){
 
         switch (this){
             case BHOP -> {
