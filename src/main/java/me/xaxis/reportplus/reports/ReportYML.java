@@ -1,10 +1,10 @@
 package me.xaxis.reportplus.reports;
 
 import me.xaxis.reportplus.ReportPlus;
-import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
+import java.io.IOException;
 
 public class ReportYML {
 
@@ -16,7 +16,7 @@ public class ReportYML {
         this.plugin = plugin;
     }
 
-    public void createFile(){
+    public void createFile() throws java.io.IOException, org.bukkit.configuration.InvalidConfigurationException{
 
         if(!plugin.getDataFolder().exists()){
             plugin.getDataFolder().mkdir();
@@ -27,11 +27,7 @@ public class ReportYML {
 
         if(!file.exists()) file.mkdir();
 
-        try {
-            yml.load(file);
-        }catch (Exception ignored){
-            Bukkit.getServer().getConsoleSender().sendMessage("Failed to create Reports.yml");
-        }
+        yml.load(file);
 
     }
 
@@ -39,12 +35,17 @@ public class ReportYML {
         return yml;
     }
 
-    public void save() {
-        try {
-            yml.save(file);
-        }catch (Exception ignored){
-            Bukkit.getServer().getConsoleSender().sendMessage("Failed to save Reports.yml");
-        }
+    public void set(String path, Object object) throws IOException {
+        yml.set(path,object);
+        save();
+    }
+
+    public Object get(String path){
+        return yml.get(path);
+    }
+
+    public void save() throws IOException {
+        yml.save(file);
     }
 
 }
