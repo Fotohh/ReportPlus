@@ -1,6 +1,6 @@
 package me.xaxis.reportplus.commands;
 
-import me.xaxis.reportplus.ReportPlus;
+import me.xaxis.reportplus.Main;
 import me.xaxis.reportplus.enums.Lang;
 import me.xaxis.reportplus.enums.Perms;
 import me.xaxis.reportplus.gui.GUI;
@@ -16,9 +16,9 @@ import org.jetbrains.annotations.NotNull;
 
 public class ReportCommand extends Utils implements CommandExecutor {
 
-    private final ReportPlus plugin;
+    private final Main plugin;
 
-    public ReportCommand(ReportPlus plugin){
+    public ReportCommand(Main plugin){
         super(plugin);
         this.plugin = plugin;
         plugin.getCommand("report").setExecutor(this);

@@ -1,4 +1,4 @@
-main: me.xaxis.reportplus.ReportPlus
+main: me.xaxis.reportplus.Main
 name: ReportPlus
 description: Report plugin
 author: Xaxis

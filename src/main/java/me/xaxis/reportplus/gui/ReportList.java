@@ -1,6 +1,6 @@
 package me.xaxis.reportplus.gui;
 
-import me.xaxis.reportplus.ReportPlus;
+import me.xaxis.reportplus.Main;
 import me.xaxis.reportplus.reports.Report;
 import me.xaxis.reportplus.reports.ReportManager;
 import me.xaxis.reportplus.utils.ItemUtils;
@@ -14,9 +14,9 @@ import java.util.Date;
 public class ReportList implements GUI{
 
     private final Inventory i;
-    private final ReportPlus plugin;
+    private final Main plugin;
 
-    public ReportList(ReportPlus reportPlus, String title){
+    public ReportList(Main reportPlus, String title){
         i = Bukkit.createInventory(null, 6*9, Utils.chat(title));
         this.plugin = reportPlus;
     }
@@ -39,6 +39,7 @@ public class ReportList implements GUI{
                     "&7Date: &6" + date)
                     .setTitle("&a" + report.getPlayerUUID())
                     .build();
+            getGUI().addItem(item.i());
         }
 
     }

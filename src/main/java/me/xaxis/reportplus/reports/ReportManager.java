@@ -1,6 +1,6 @@
 package me.xaxis.reportplus.reports;
 
-import me.xaxis.reportplus.ReportPlus;
+import me.xaxis.reportplus.Main;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -11,9 +11,9 @@ public class ReportManager{
 
     private static final HashMap<UUID, Report> reports = new HashMap<>();
 
-    private final ReportPlus plugin;
+    private final Main plugin;
 
-    public ReportManager(ReportPlus plugin){
+    public ReportManager(Main plugin){
         this.plugin = plugin;
     }
 

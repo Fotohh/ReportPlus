@@ -1,6 +1,6 @@
 package me.xaxis.reportplus.gui;
 
-import me.xaxis.reportplus.ReportPlus;
+import me.xaxis.reportplus.Main;
 import me.xaxis.reportplus.enums.ReportType;
 import me.xaxis.reportplus.utils.ItemUtils;
 import me.xaxis.reportplus.utils.Utils;
@@ -14,9 +14,9 @@ public class ReportSelection implements GUI{
 
     private final Inventory i;
 
-    private final ReportPlus plugin;
+    private final Main plugin;
 
-    public ReportSelection(ReportPlus plugin, String title){
+    public ReportSelection(Main plugin, String title){
         i = Bukkit.createInventory(null, size, Utils.chat(title));
         this.plugin = plugin;
     }
@@ -30,7 +30,7 @@ public class ReportSelection implements GUI{
     public void createItems() {
         for(ReportType type : ReportType.values()){
             ItemUtils item = new ItemUtils(type.getMaterial(plugin));
-            item.setTitle("&a" + type);
+            item.setTitle("&a" + type.getDisplayName(plugin)).build();
             getGUI().addItem(item.i());
         }
     }

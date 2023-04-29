@@ -1,6 +1,6 @@
 package me.xaxis.reportplus.utils;
 
-import me.xaxis.reportplus.ReportPlus;
+import me.xaxis.reportplus.Main;
 import me.xaxis.reportplus.enums.Lang;
 import me.xaxis.reportplus.enums.Perms;
 import org.bukkit.ChatColor;
@@ -12,9 +12,9 @@ import org.jetbrains.annotations.NotNull;
 
 public class Utils {
 
-    private final ReportPlus plugin;
+    private final Main plugin;
 
-    public Utils(ReportPlus plugin) {
+    public Utils(Main plugin) {
         this.plugin = plugin;
     }
 

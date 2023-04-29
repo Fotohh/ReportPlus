@@ -1,6 +1,6 @@
 package me.xaxis.reportplus.reports;
 
-import me.xaxis.reportplus.ReportPlus;
+import me.xaxis.reportplus.Main;
 import me.xaxis.reportplus.enums.ReportType;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
@@ -11,11 +11,11 @@ import java.util.UUID;
 
 public class Report{
 
-    private final ReportPlus plugin;
+    private final Main plugin;
 
     private final ConfigurationSection section;
 
-    public Report(@NotNull ReportPlus plugin, @NotNull UUID playerUUID, @NotNull UUID reporter, @NotNull ReportType reportType) throws IOException {
+    public Report(@NotNull Main plugin, @NotNull UUID playerUUID, @NotNull UUID reporter, @NotNull ReportType reportType) throws IOException {
 
         this.plugin = plugin;
 
@@ -50,7 +50,7 @@ public class Report{
     public ReportType getReportType(){
         return ReportType.valueOf( section.getString("report_type") );
     }
-    public Report(@NotNull ReportPlus plugin, @NotNull UUID uuid){
+    public Report(@NotNull Main plugin, @NotNull UUID uuid){
 
         this.plugin = plugin;
 

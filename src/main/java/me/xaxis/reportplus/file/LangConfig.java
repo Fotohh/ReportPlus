@@ -1,6 +1,6 @@
 package me.xaxis.reportplus.file;
 
-import me.xaxis.reportplus.ReportPlus;
+import me.xaxis.reportplus.Main;
 import me.xaxis.reportplus.enums.Lang;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -11,12 +11,12 @@ import java.io.File;
 import java.io.IOException;
 
 public class LangConfig {
-    private final ReportPlus plugin;
+    private final Main plugin;
     private final String fileName;
     private final File configFile;
     private FileConfiguration fileConfiguration;
 
-    public LangConfig(ReportPlus plugin) {
+    public LangConfig(Main plugin) {
         this.plugin = plugin;
         this.fileName = "Lang.yml";
         this.configFile = new File(plugin.getDataFolder(), fileName);

@@ -1,6 +1,6 @@
 package me.xaxis.reportplus.reports;
 
-import me.xaxis.reportplus.ReportPlus;
+import me.xaxis.reportplus.Main;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
@@ -8,11 +8,11 @@ import java.io.IOException;
 
 public class ReportYML {
 
-    private final ReportPlus plugin;
+    private final Main plugin;
     private File file;
     private YamlConfiguration yml;
 
-    public ReportYML(ReportPlus plugin){
+    public ReportYML(Main plugin){
         this.plugin = plugin;
     }
 

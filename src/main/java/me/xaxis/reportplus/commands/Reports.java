@@ -1,8 +1,9 @@
 package me.xaxis.reportplus.commands;
 
-import me.xaxis.reportplus.ReportPlus;
+import me.xaxis.reportplus.Main;
+import me.xaxis.reportplus.enums.Lang;
 import me.xaxis.reportplus.enums.Perms;
-import me.xaxis.reportplus.gui.ReportSelection;
+import me.xaxis.reportplus.gui.ReportList;
 import me.xaxis.reportplus.utils.Utils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -12,9 +13,9 @@ import org.jetbrains.annotations.NotNull;
 
 public class Reports extends Utils implements CommandExecutor {
 
-    private final ReportPlus plugin;
+    private final Main plugin;
 
-    public Reports(ReportPlus plugin) {
+    public Reports(Main plugin) {
         super(plugin);
         this.plugin = plugin;
         plugin.getCommand("reports").setExecutor(this);
@@ -26,8 +27,7 @@ public class Reports extends Utils implements CommandExecutor {
 
         if(isValid(commandSender,Perms.LIST_REPORTS)){
             Player player = (Player) commandSender;
-
-            new ReportSelection(plugin, "").openGUI(player);
+            new ReportList(plugin, plugin.getLangConfig().getString(Lang.REPORT_LIST_GUI_TITLE)).openGUI(player);
         }
 
         return true;
