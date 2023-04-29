@@ -2,6 +2,8 @@ package me.xaxis.reportplus.gui;
 
 import me.xaxis.reportplus.Main;
 import me.xaxis.reportplus.file.LangConfig;
+import me.xaxis.reportplus.reports.Report;
+import me.xaxis.reportplus.reports.ReportManager;
 import me.xaxis.reportplus.utils.ItemUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -9,6 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 
 public class ReportListOptions implements GUI{
 
@@ -16,11 +19,13 @@ public class ReportListOptions implements GUI{
     private final Main plugin;
     private final Player player;
     private final LangConfig lang;
+    private final Report report;
 
-    public ReportListOptions(Main plugin, Player player){
+    public ReportListOptions(Main plugin, Player player, Report report){
         this.plugin = plugin;
         this.player = player;
         this.lang = plugin.getLangConfig();
+        this.report =report;
         inventory = Bukkit.createInventory(null, 6*9, "");
         registerListener(plugin).openGUI(player);
     }
@@ -30,22 +35,54 @@ public class ReportListOptions implements GUI{
         return inventory;
     }
 
+    private ItemStack barrier,redConcrete,blackConcrete,arrow;
+
     @Override
     public void createItems() {
         //barrier close, red conc delete, black conc resolved, arrow back,
-        ItemUtils barrier = new ItemUtils(Material.BARRIER);
-        barrier.setTitle;
-        ItemUtils redConcrete = new ItemUtils(Material.RED_CONCRETE);
-        ItemUtils blackConcrete = new ItemUtils(Material.BLACK_CONCRETE);
-        ItemUtils arrow = new ItemUtils(Material.ARROW);
-        
-        
-
+        barrier = new ItemUtils(Material.BARRIER)
+                .setTitle("&cClose Inventory")
+                .build();
+        redConcrete = new ItemUtils(Material.RED_CONCRETE)
+                .setTitle("&cDelete Report")
+                .build();
+        blackConcrete = new ItemUtils(Material.BLACK_CONCRETE)
+                .setTitle("&aSet as resolved")
+                .build();
+        arrow = new ItemUtils(Material.ARROW)
+                .setTitle("&7Go back")
+                .build();
     }
 
     @Override
     @EventHandler
     public void onClick(InventoryClickEvent event) {
 
+        if(event.getClickedInventory() != getGUI()) return;
+
+        Player p = (Player) event.getWhoClicked();
+
+        if(!p.equals(player)) return;
+        if(event.getCurrentItem() == null) return;
+
+        if(event.getCurrentItem().equals(barrier)){
+            p.closeInventory();
+        } else if (event.getCurrentItem().equals(redConcrete)) {
+            p.closeInventory();
+            ReportManager.deleteReport(report.getPlayerUUID());
+            GUI i = new ReportList(plugin, "&aReport List");
+            i.openGUI(p);
+        } else if (event.getCurrentItem().equals(blackConcrete)) {
+            p.closeInventory();
+            report.resolve();
+            GUI i = new ReportList(plugin, "&aReport List");
+            i.openGUI(p);
+        } else if (event.getCurrentItem().equals(arrow)) {
+            p.closeInventory();
+            GUI i = new ReportList(plugin, "&aReport List");
+            i.openGUI(p);
+        }
+
+        event.setCancelled(true);
     }
 }

@@ -66,7 +66,7 @@ public class ReportList implements GUI{
 
         Report report = ReportManager.getReport(player.getUniqueId());
 
-        GUI gui = new ReportListOptions(plugin, (Player) event.getWhoClicked());
+        new ReportListOptions(plugin, (Player) event.getWhoClicked(), report);
 
         event.setCancelled(true);
     }

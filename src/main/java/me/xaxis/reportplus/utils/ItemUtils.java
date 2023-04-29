@@ -19,16 +19,11 @@ public class ItemUtils {
         itemMeta = item.getItemMeta();
     }
 
-    public ItemUtils lore(String @NotNull ... lore){
+    public ItemUtils lore(String... lore){
 
-        List<String> l = new ArrayList<>();
-
-        for(String s : lore){
-            l.add(Utils.chat(s));
-        }
-
-        Bukkit.getServer().getConsoleSender().sendMessage(l.toString());
-
+        if(lore == null || lore.length == 0) return this;
+        List<String> l = new ArrayList<>(List.of(lore));
+        l.forEach(Utils::chat);
         itemMeta.setLore(l);
         return this;
     }
@@ -46,7 +41,5 @@ public class ItemUtils {
     public ItemStack i(){
         return item;
     }
-
-
 
 }
