@@ -19,6 +19,7 @@ public class ReportSelection implements GUI{
     public ReportSelection(Main plugin, String title){
         i = Bukkit.createInventory(null, size, Utils.chat(title));
         this.plugin = plugin;
+        registerListener(plugin);
     }
 
     @Override

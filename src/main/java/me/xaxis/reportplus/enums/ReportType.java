@@ -43,8 +43,7 @@ public enum ReportType {
         return materialName != null ? Material.valueOf(materialName) : null;
     }
     public String getDisplayName(Main plugin){
-        String displayName = plugin.getConfig().getString(getDisplayNamePath());
-        return displayName;
+        return plugin.getConfig().getString(getDisplayNamePath());
     }
 
     public static ReportType fromConfigKey(String configKey) {

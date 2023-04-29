@@ -38,8 +38,9 @@ public class ItemUtils {
         return this;
     }
 
-    public void build(){
+    public ItemStack build(){
         item.setItemMeta(itemMeta);
+        return item;
     }
 
     public ItemStack i(){
