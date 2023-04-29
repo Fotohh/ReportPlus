@@ -7,7 +7,9 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ItemUtils {
 
@@ -22,8 +24,9 @@ public class ItemUtils {
     public ItemUtils lore(String... lore){
 
         if(lore == null || lore.length == 0) return this;
-        List<String> l = new ArrayList<>(List.of(lore));
-        l.forEach(Utils::chat);
+        List<String> l = Arrays.stream(lore)
+                .map(Utils::chat)
+                .collect(Collectors.toList());
         itemMeta.setLore(l);
         return this;
     }

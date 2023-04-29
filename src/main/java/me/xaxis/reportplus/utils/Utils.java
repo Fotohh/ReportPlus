@@ -143,6 +143,10 @@ public class Utils {
         return target != null && target.isOnline();
     }
 
+    public boolean isTargetValid(OfflinePlayer target){
+        return target != null;
+    }
+
     /**
      * Send message with prefix
      * @param sender the target to send the message to

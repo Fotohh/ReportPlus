@@ -13,6 +13,8 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import java.io.IOException;
+
 public class ReportListOptions implements GUI{
 
     private final Inventory inventory;
@@ -52,6 +54,11 @@ public class ReportListOptions implements GUI{
         arrow = new ItemUtils(Material.ARROW)
                 .setTitle("&7Go back")
                 .build();
+
+        getGUI().setItem(12, redConcrete);
+        getGUI().setItem(13, blackConcrete);
+        getGUI().setItem(45, barrier);
+        getGUI().setItem(53, arrow);
     }
 
     @Override
@@ -69,17 +76,21 @@ public class ReportListOptions implements GUI{
             p.closeInventory();
         } else if (event.getCurrentItem().equals(redConcrete)) {
             p.closeInventory();
-            ReportManager.deleteReport(report.getPlayerUUID());
-            GUI i = new ReportList(plugin, "&aReport List");
+            ReportManager.deleteReport(report.getPlayerUUID(), plugin);
+            GUI i = new ReportList("&aReport List", plugin);
             i.openGUI(p);
         } else if (event.getCurrentItem().equals(blackConcrete)) {
             p.closeInventory();
-            report.resolve();
-            GUI i = new ReportList(plugin, "&aReport List");
+            try {
+                report.resolve();
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to save config",e);
+            }
+            GUI i = new ReportList("&aReport List", plugin);
             i.openGUI(p);
         } else if (event.getCurrentItem().equals(arrow)) {
             p.closeInventory();
-            GUI i = new ReportList(plugin, "&aReport List");
+            GUI i = new ReportList("&aReport List", plugin);
             i.openGUI(p);
         }
 

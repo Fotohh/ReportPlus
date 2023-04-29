@@ -27,7 +27,7 @@ public class Reports extends Utils implements CommandExecutor {
 
         if(isValid(commandSender,Perms.LIST_REPORTS)){
             Player player = (Player) commandSender;
-            new ReportList(plugin, plugin.getLangConfig().getString(Lang.REPORT_LIST_GUI_TITLE)).openGUI(player);
+            new ReportList(plugin.getLangConfig().getString(Lang.REPORT_LIST_GUI_TITLE), plugin).openGUI(player);
         }
 
         return true;

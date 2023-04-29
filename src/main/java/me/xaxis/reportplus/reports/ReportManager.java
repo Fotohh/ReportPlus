@@ -3,6 +3,7 @@ package me.xaxis.reportplus.reports;
 import me.xaxis.reportplus.Main;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
@@ -29,8 +30,14 @@ public class ReportManager{
         return reports.containsKey(playerUUID);
     }
 
-    public static void deleteReport(UUID uuid){
+    public static void deleteReport(UUID uuid, Main plugin) {
         reports.remove(uuid);
+        try {
+            plugin.getReportYML().set(uuid.toString(), null);
+            plugin.getReportYML().save();
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to delete entry",e);
+        }
     }
 
     public static @NotNull ArrayList<Report> getReports(){

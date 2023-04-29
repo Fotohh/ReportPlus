@@ -38,7 +38,7 @@ public class ReportCommand extends Utils implements CommandExecutor {
                 OfflinePlayer target = Bukkit.getPlayer(s);
 
                 if (isTargetValid(player, target)) {
-                    GUI reportSelection = new ReportSelection(plugin, target.getUniqueId().toString());
+                    GUI reportSelection = new ReportSelection(plugin, target.getUniqueId().toString(), player);
                     reportSelection.openGUI(player);
                 }
 

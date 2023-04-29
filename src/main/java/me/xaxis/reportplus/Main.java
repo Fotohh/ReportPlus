@@ -3,7 +3,6 @@ package me.xaxis.reportplus;
 import me.xaxis.reportplus.commands.ReportCommand;
 import me.xaxis.reportplus.commands.Reports;
 import me.xaxis.reportplus.file.LangConfig;
-import me.xaxis.reportplus.listener.OnClick;
 import me.xaxis.reportplus.reports.Report;
 import me.xaxis.reportplus.reports.ReportYML;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -21,7 +20,6 @@ public class Main extends JavaPlugin {
     public void onEnable() {
         saveDefaultConfig();
         langConfig = new LangConfig(this);
-        new OnClick(this);
         new ReportCommand(this);
         new Reports(this);
         try {
@@ -39,7 +37,11 @@ public class Main extends JavaPlugin {
     @Override
     public void onDisable() {
 
-
+        try {
+            getReportYML().save();
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to save Reports.yml",e);
+        }
 
     }
 
