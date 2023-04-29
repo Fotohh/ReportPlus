@@ -1,64 +1,54 @@
 package me.xaxis.reportplus.commands;
 
 import me.xaxis.reportplus.ReportPlus;
-import me.xaxis.reportplus.enums.ReportType;
-import me.xaxis.reportplus.reports.Report;
+import me.xaxis.reportplus.enums.Lang;
+import me.xaxis.reportplus.enums.Perms;
+import me.xaxis.reportplus.gui.GUI;
+import me.xaxis.reportplus.gui.ReportSelection;
+import me.xaxis.reportplus.utils.Utils;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
-
-public class ReportCommand implements CommandExecutor {
+public class ReportCommand extends Utils implements CommandExecutor {
 
     private final ReportPlus plugin;
 
     public ReportCommand(ReportPlus plugin){
+        super(plugin);
         this.plugin = plugin;
+        plugin.getCommand("report").setExecutor(this);
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String string, @NotNull String[] args) {
 
-        if(sender instanceof Player player){
+        if (isValid(sender, Perms.PLAYER_REPORT)) {
 
-            if(player.hasPermission("blacklistedFromReports")) {
+            Player player = (Player) sender;
 
-                if(args.length == 1){
+            if (args.length == 1) {
 
-                    // /report <player_name>
+                String s = args[0];
 
-                    String s = args[0];
+                OfflinePlayer target = Bukkit.getPlayer(s);
 
-                    Player target = Bukkit.getPlayer(s);
-
-                    if(target!= null && target.isOnline()){
-
-                        try {
-                            Report report = new Report(plugin, target.getUniqueId(), player.getUniqueId(), ReportType.AUTOCLICKING);
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-
-                    }else{
-                        //error
-                    }
-
-                }else{
-                    //error
+                if (isTargetValid(player, target)) {
+                    GUI reportSelection = new ReportSelection(plugin, target.getUniqueId().toString());
+                    reportSelection.openGUI(player);
                 }
 
-            }else{
-                //error
+                return true;
+
+            } else {
+                message(player, Lang.NOT_ENOUGH_ARGS);
+                return true;
             }
-
-        }else{
-            //error
         }
-
         return true;
     }
 }

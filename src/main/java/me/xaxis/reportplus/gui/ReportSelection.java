@@ -5,7 +5,7 @@ import me.xaxis.reportplus.enums.ReportType;
 import me.xaxis.reportplus.utils.ItemUtils;
 import me.xaxis.reportplus.utils.Utils;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 
 public class ReportSelection implements GUI{
@@ -21,12 +21,6 @@ public class ReportSelection implements GUI{
         this.plugin = plugin;
     }
 
-
-    @Override
-    public void openGUI(Player player) {
-        player.openInventory(i);
-    }
-
     @Override
     public Inventory getGUI() {
         return i;
@@ -39,5 +33,10 @@ public class ReportSelection implements GUI{
             item.setTitle("&a" + type);
             getGUI().addItem(item.i());
         }
+    }
+
+    @Override
+    public void onClick(InventoryClickEvent event) {
+
     }
 }

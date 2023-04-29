@@ -6,9 +6,8 @@ import me.xaxis.reportplus.reports.ReportManager;
 import me.xaxis.reportplus.utils.ItemUtils;
 import me.xaxis.reportplus.utils.Utils;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Date;
 
@@ -23,11 +22,6 @@ public class ReportList implements GUI{
     }
 
     @Override
-    public void openGUI(@NotNull Player player) {
-        player.openInventory(i);
-    }
-
-    @Override
     public Inventory getGUI() {
         return i;
     }
@@ -37,14 +31,20 @@ public class ReportList implements GUI{
 
         for(Report report : ReportManager.getReports()){
             ItemUtils item = new ItemUtils(report.getReportType().getMaterial(plugin));
-
             Date date = new Date(report.getTimestamp());
+
             item.lore("&7Report Type: &6" + report.getReportType().toString(),
-                    "&7Player: &6" + Bukkit.getPlayer(report.getPlayerUUID()).getName(),
-                    "&7Reporter: &6"+ Bukkit.getPlayer(report.getReporterUUID()).getName(),
-                    "&7Date: &6" + date);
-            item.setTitle("&a" + report.getPlayerUUID());
+                    "&7Player: &6" + report.getPlayerName(),
+                    "&7Reporter: &6"+ report.getTargetName(),
+                    "&7Date: &6" + date)
+                    .setTitle("&a" + report.getPlayerUUID())
+                    .build();
         }
+
+    }
+
+    @Override
+    public void onClick(InventoryClickEvent event) {
 
     }
 

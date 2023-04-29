@@ -2,6 +2,7 @@ package me.xaxis.reportplus.reports;
 
 import me.xaxis.reportplus.ReportPlus;
 import me.xaxis.reportplus.enums.ReportType;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 
@@ -34,6 +35,12 @@ public class Report{
     public UUID getPlayerUUID(){
         return UUID.fromString( section.getString("player_UUID") );
     }
+    public String getPlayerName(){
+        return Bukkit.getPlayer(UUID.fromString( section.getString("player_UUID") )).getName();
+    }
+    public String getTargetName(){
+        return Bukkit.getPlayer(UUID.fromString( section.getString("reporter_UUID") )).getName();
+    }
     public Long getTimestamp(){
         return section.getLong("timestamp");
     }
@@ -43,7 +50,6 @@ public class Report{
     public ReportType getReportType(){
         return ReportType.valueOf( section.getString("report_type") );
     }
-
     public Report(@NotNull ReportPlus plugin, @NotNull UUID uuid){
 
         this.plugin = plugin;

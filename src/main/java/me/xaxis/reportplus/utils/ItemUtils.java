@@ -19,7 +19,7 @@ public class ItemUtils {
         itemMeta = item.getItemMeta();
     }
 
-    public void lore(String @NotNull ... lore){
+    public ItemUtils lore(String @NotNull ... lore){
 
         List<String> l = new ArrayList<>();
 
@@ -30,13 +30,15 @@ public class ItemUtils {
         Bukkit.getServer().getConsoleSender().sendMessage(l.toString());
 
         itemMeta.setLore(l);
-
-        item.setItemMeta(itemMeta);
-
+        return this;
     }
 
-    public void setTitle(String s){
+    public ItemUtils setTitle(String s){
         itemMeta.setDisplayName(Utils.chat(s));
+        return this;
+    }
+
+    public void build(){
         item.setItemMeta(itemMeta);
     }
 

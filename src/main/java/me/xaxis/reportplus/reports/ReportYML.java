@@ -25,7 +25,7 @@ public class ReportYML {
         file = new File(plugin.getDataFolder(), "Reports.yml");
         yml = new YamlConfiguration();
 
-        if(!file.exists()) file.mkdir();
+        if(!file.exists()) file.createNewFile();
 
         yml.load(file);
 
