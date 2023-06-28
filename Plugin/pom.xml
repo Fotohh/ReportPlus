@@ -3,17 +3,14 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
-        <artifactId>ReportPlus</artifactId>
-        <groupId>io.github.xaxis.reportplus</groupId>
+        <artifactId>reportplus</artifactId>
+        <groupId>io.github.xaxis</groupId>
         <version>1.0</version>
     </parent>
-
     <artifactId>Plugin</artifactId>
     <version>0</version>
     <packaging>jar</packaging>
-
     <build>
         <directory>../target</directory>
         <finalName>Eggwars</finalName>
@@ -43,12 +40,10 @@
             </plugin>
         </plugins>
     </build>
-
     <properties>
         <maven.compiler.source>18</maven.compiler.source>
         <maven.compiler.target>18</maven.compiler.target>
     </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.spigotmc</groupId>
@@ -63,5 +58,4 @@
             <scope>compile</scope>
         </dependency>
     </dependencies>
-
 </project>
