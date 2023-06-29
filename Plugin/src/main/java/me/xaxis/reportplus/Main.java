@@ -11,7 +11,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.io.IOException;
 import java.util.UUID;
 
-public class Main extends JavaPlugin {
+public final class Main extends JavaPlugin {
 
     ReportYML reportYML = new ReportYML(this);
     LangConfig langConfig;
