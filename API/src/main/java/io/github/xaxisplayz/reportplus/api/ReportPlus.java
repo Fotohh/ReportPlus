@@ -23,5 +23,13 @@ public class ReportPlus {
         return (Main) plugin.getServer().getPluginManager().getPlugin("ReportPlus");
     }
 
+    private static boolean useDefaultAlert = true;
 
+    public static void setUseDefaultAlert(boolean useDefaultAlert) {
+        ReportPlus.useDefaultAlert = useDefaultAlert;
+    }
+
+    public static boolean useDefaultAlert() {
+        return useDefaultAlert;
+    }
 }

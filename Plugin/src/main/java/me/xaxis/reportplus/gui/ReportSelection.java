@@ -1,5 +1,6 @@
 package me.xaxis.reportplus.gui;
 
+import io.github.xaxisplayz.reportplus.api.ReportPlus;
 import me.xaxis.reportplus.Main;
 import me.xaxis.reportplus.enums.Lang;
 import me.xaxis.reportplus.enums.Perms;
@@ -76,7 +77,9 @@ public class ReportSelection extends Utils implements GUI{
                     Report report = new Report(plugin, target.getUniqueId(), player.getUniqueId(), type);
                     player.closeInventory();
                     message(player, Lang.SUCCESSFUL_REPORT, target.getName(), type.name());
-                    reportAlert(target.getName(), player.getName(), type.name(), new Date(report.getTimestamp()).toString());
+                    if(ReportPlus.useDefaultAlert()) {
+                        reportAlert(target.getName(), player.getName(), type.name(), new Date(report.getTimestamp()).toString());
+                    }
                 } catch (IOException e) {
                     throw new RuntimeException("Unable to register report.", e);
                 }
