@@ -11,9 +11,10 @@
     <artifactId>Plugin</artifactId>
     <version>0</version>
     <packaging>jar</packaging>
+    <name>ReportPlus</name>
     <build>
         <directory>../target</directory>
-        <finalName>Eggwars</finalName>
+        <finalName>ReportPlus</finalName>
         <resources>
             <resource>
                 <targetPath>.</targetPath>
@@ -38,10 +39,8 @@
                     </execution>
                 </executions>
             </plugin>
-
         </plugins>
     </build>
-
     <dependencies>
         <dependency>
             <groupId>org.spigotmc</groupId>
@@ -54,6 +53,11 @@
             <artifactId>annotations</artifactId>
             <version>24.0.1</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.github.xaxisplayz.reportplus</groupId>
+            <artifactId>API</artifactId>
+            <version>1.0</version>
         </dependency>
     </dependencies>
 </project>
