@@ -1,6 +1,5 @@
 package me.xaxis.reportplus.reports;
 
-import io.github.xaxisplayz.reportplus.api.events.ReportPlayerEvent;
 import me.xaxis.reportplus.Main;
 import me.xaxis.reportplus.enums.ReportState;
 import me.xaxis.reportplus.enums.ReportType;
@@ -32,8 +31,6 @@ public class Report{
         plugin.getReportYML().save();
 
         ReportManager.addReport(this, playerUUID);
-
-        Bukkit.getPluginManager().callEvent(new ReportPlayerEvent(this));
 
 
     }

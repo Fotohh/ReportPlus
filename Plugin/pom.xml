@@ -54,10 +54,5 @@
             <version>24.0.1</version>
             <scope>compile</scope>
         </dependency>
-        <dependency>
-            <groupId>io.github.xaxisplayz.reportplus</groupId>
-            <artifactId>API</artifactId>
-            <version>1.0</version>
-        </dependency>
     </dependencies>
 </project>
