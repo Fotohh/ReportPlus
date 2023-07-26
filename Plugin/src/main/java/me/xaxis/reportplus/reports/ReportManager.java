@@ -10,7 +10,6 @@ import java.util.UUID;
 
 public class ReportManager{
 
-    private static final HashMap<UUID, Report> reports = new HashMap<>();
     private static final HashMap<UUID, Report> reportUUIDMap = new HashMap<>();
 
     public static HashMap<UUID, Report> getReportUUIDMap() {
@@ -23,24 +22,20 @@ public class ReportManager{
         this.plugin = plugin;
     }
 
-    public static Report getReport(UUID playerUUID){
-        return reports.get(playerUUID);
-    }
-
-    public static Report getUUIDReport(UUID uuid){
+    public static Report getReport(UUID uuid){
         return reportUUIDMap.get(uuid);
     }
 
     public static void addReport(Report report, UUID uuid){
-        reports.put(uuid, report);
+        reportUUIDMap.put(uuid, report);
     }
 
     public static boolean contains(UUID playerUUID){
-        return reports.containsKey(playerUUID);
+        return reportUUIDMap.containsKey(playerUUID);
     }
 
     public static void deleteReport(UUID uuid, Main plugin) {
-        reports.remove(uuid);
+        reportUUIDMap.remove(uuid);
         try {
             plugin.getReportYML().set(uuid.toString(), null);
             plugin.getReportYML().save();
@@ -53,8 +48,8 @@ public class ReportManager{
 
         ArrayList<Report> r = new ArrayList<>();
 
-        for(UUID key : reports.keySet()){
-            r.add(reports.get(key));
+        for(UUID key : reportUUIDMap.keySet()){
+            r.add(reportUUIDMap.get(key));
         }
 
         return r;

@@ -11,6 +11,7 @@ import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -45,7 +46,7 @@ public class ReportList implements GUI {
     @Override
     public void createItems() {
 
-        for(Report report : ReportManager.getReports()){
+        for(Report report : ReportManager.getReportUUIDMap().values()){
             Material material = Material.getMaterial(plugin.getConfig().getConfigurationSection("REPORT_TYPE")
                     .getConfigurationSection(report.getReportType()).getString("MATERIAL"));
             ItemUtils item = new ItemUtils(material);
@@ -60,6 +61,16 @@ public class ReportList implements GUI {
             items.add(item.i());
         }
 
+        pagination();
+
+    }
+
+    public void updateGUI() {
+        gui.clear();
+        pagination();
+    }
+
+    private void pagination() {
         int startIndex = (currentPage - 1) * itemsPerPage;
         int endIndex = Math.min(startIndex + itemsPerPage, items.size());
         for (int i = startIndex; i < endIndex; i++) {
@@ -68,7 +79,6 @@ public class ReportList implements GUI {
         gui.setItem(45, createPageButton("Previous Page", Material.ARROW, currentPage - 1));
         gui.setItem(49, createPageNumber());
         gui.setItem(53, createPageButton("Next Page", Material.ARROW, currentPage + 1));
-
     }
 
     //TODO FIX ITTTTT
@@ -82,19 +92,23 @@ public class ReportList implements GUI {
         event.setCancelled(true);
         if (event.getRawSlot() == 45 && currentPage > 1) {
             currentPage--;
-            event.getWhoClicked().openInventory(getGUI());
+            updateGUI();
+            return;
         } else if (event.getRawSlot() == 53 && currentPage < getTotalPages()) {
             currentPage++;
-            event.getWhoClicked().openInventory(getGUI());
+            updateGUI();
+            return;
         } else if(event.getRawSlot() == 49) return;
 
         UUID uuid = UUID.fromString(event.getCurrentItem().getItemMeta().getDisplayName());
 
-        Report report = ReportManager.getUUIDReport(uuid);
+        Report report = ReportManager.getReport(uuid);
 
         new ReportListOptions(plugin, (Player) event.getWhoClicked(), report);
 
         event.setCancelled(true);
+
+        HandlerList.unregisterAll(this);
 
     }
 

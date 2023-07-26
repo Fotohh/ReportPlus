@@ -13,10 +13,9 @@ public interface GUI extends Listener {
         return this;
     }
 
-    default GUI openGUI(Player player){
+    default void openGUI(Player player){
         createItems();
         player.openInventory(getGUI());
-        return this;
     }
 
     Inventory getGUI();

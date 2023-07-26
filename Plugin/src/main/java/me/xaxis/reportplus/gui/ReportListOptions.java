@@ -76,7 +76,7 @@ public class ReportListOptions implements GUI{
             p.closeInventory();
         } else if (event.getCurrentItem().equals(redConcrete)) {
             p.closeInventory();
-            ReportManager.deleteReport(report.getPlayerUUID(), plugin);
+            ReportManager.deleteReport(report.getReportUUID(), plugin);
             GUI i = new ReportList("&aReport List", plugin);
             i.openGUI(p);
         } else if (event.getCurrentItem().equals(blackConcrete)) {

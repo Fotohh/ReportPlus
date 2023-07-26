@@ -34,7 +34,6 @@ public class ReportSelection extends Utils implements GUI{
         int size = 18;
         i = Bukkit.createInventory(null, size, Utils.chat(title));
         this.plugin = plugin;
-        createItems();
         registerListener(plugin).openGUI(player);
     }
 

@@ -36,7 +36,6 @@ public class Report{
         plugin.getReportYML().save();
 
         ReportManager.addReport(this, playerUUID);
-        ReportManager.getReportUUIDMap().put(uuid, this);
 
     }
 
@@ -75,7 +74,6 @@ public class Report{
         section = plugin.getReportYML().getFile().getConfigurationSection(uuid.toString());
 
         ReportManager.addReport(this, uuid);
-        ReportManager.getReportUUIDMap().put(getReportUUID(), this);
 
     }
 
