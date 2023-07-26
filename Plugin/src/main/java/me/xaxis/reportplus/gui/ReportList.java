@@ -70,6 +70,8 @@ public class ReportList implements GUI {
 
     }
 
+    //TODO FIX ITTTTT
+
     @EventHandler
     public void onClick(InventoryClickEvent event) {
 
