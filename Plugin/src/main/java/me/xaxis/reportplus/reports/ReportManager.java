@@ -11,6 +11,11 @@ import java.util.UUID;
 public class ReportManager{
 
     private static final HashMap<UUID, Report> reports = new HashMap<>();
+    private static final HashMap<UUID, Report> reportUUIDMap = new HashMap<>();
+
+    public static HashMap<UUID, Report> getReportUUIDMap() {
+        return reportUUIDMap;
+    }
 
     private final Main plugin;
 
@@ -20,6 +25,10 @@ public class ReportManager{
 
     public static Report getReport(UUID playerUUID){
         return reports.get(playerUUID);
+    }
+
+    public static Report getUUIDReport(UUID uuid){
+        return reportUUIDMap.get(uuid);
     }
 
     public static void addReport(Report report, UUID uuid){

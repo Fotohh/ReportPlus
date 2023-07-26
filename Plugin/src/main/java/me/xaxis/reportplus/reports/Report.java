@@ -2,7 +2,6 @@ package me.xaxis.reportplus.reports;
 
 import me.xaxis.reportplus.Main;
 import me.xaxis.reportplus.enums.ReportState;
-import me.xaxis.reportplus.enums.ReportType;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
@@ -16,22 +15,28 @@ public class Report{
     private final ConfigurationSection section;
     private final Main plugin;
 
-    public Report(Main plugin, @NotNull UUID playerUUID, @NotNull UUID reporter, @NotNull ReportType reportType) throws IOException {
+    public UUID getReportUUID() {
+        return UUID.fromString(section.getString("report_uuid"));
+    }
+
+    public Report(Main plugin, @NotNull UUID playerUUID, @NotNull UUID reporter, @NotNull String reportType) throws IOException {
 
         this.plugin = plugin;
 
-        section = plugin.getReportYML().getFile().createSection(playerUUID.toString());
+        UUID uuid = UUID.randomUUID();
 
+        section = plugin.getReportYML().getFile().createSection(uuid.toString());
+        section.set("report_uuid", uuid.toString());
         section.set("player_UUID", playerUUID.toString());
         section.set("timestamp", System.currentTimeMillis());
         section.set("reporter_UUID", reporter.toString());
-        section.set("report_type", reportType.toString());
+        section.set("report_type", reportType);
         section.set("report_state", ReportState.OPEN.name());
 
         plugin.getReportYML().save();
 
         ReportManager.addReport(this, playerUUID);
-
+        ReportManager.getReportUUIDMap().put(uuid, this);
 
     }
 
@@ -60,8 +65,8 @@ public class Report{
     public UUID getReporterUUID(){
         return UUID.fromString( section.getString("reporter_UUID") );
     }
-    public ReportType getReportType(){
-        return ReportType.valueOf( section.getString("report_type") );
+    public String getReportType(){
+        return section.getString("report_type" );
     }
     public Report(@NotNull Main plugin, @NotNull UUID uuid){
 
@@ -70,6 +75,7 @@ public class Report{
         section = plugin.getReportYML().getFile().getConfigurationSection(uuid.toString());
 
         ReportManager.addReport(this, uuid);
+        ReportManager.getReportUUIDMap().put(getReportUUID(), this);
 
     }
 
@@ -79,6 +85,13 @@ public class Report{
         if (o == null || getClass() != o.getClass()) return false;
         Report report = (Report) o;
         return Objects.equals(section, report.section);
+    }
+
+    @Override
+    public String toString() {
+        return "Report{" + "section=" + section +
+                ", plugin=" + plugin +
+                '}';
     }
 
     @Override
