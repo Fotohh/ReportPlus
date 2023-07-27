@@ -16,22 +16,12 @@ public class ReportManager{
         return reportUUIDMap;
     }
 
-    private final Main plugin;
-
-    public ReportManager(Main plugin){
-        this.plugin = plugin;
-    }
-
     public static Report getReport(UUID uuid){
         return reportUUIDMap.get(uuid);
     }
 
     public static void addReport(Report report, UUID uuid){
         reportUUIDMap.put(uuid, report);
-    }
-
-    public static boolean contains(UUID playerUUID){
-        return reportUUIDMap.containsKey(playerUUID);
     }
 
     public static void deleteReport(UUID uuid, Main plugin) {
@@ -43,16 +33,4 @@ public class ReportManager{
             throw new RuntimeException("Failed to delete entry",e);
         }
     }
-
-    public static @NotNull ArrayList<Report> getReports(){
-
-        ArrayList<Report> r = new ArrayList<>();
-
-        for(UUID key : reportUUIDMap.keySet()){
-            r.add(reportUUIDMap.get(key));
-        }
-
-        return r;
-    }
-
 }

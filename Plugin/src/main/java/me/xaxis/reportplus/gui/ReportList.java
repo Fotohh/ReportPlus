@@ -58,11 +58,11 @@ public class ReportList implements GUI {
             ItemUtils item = new ItemUtils(material);
             Date date = new Date(report.getTimestamp());
             item.lore("&7Report Type: &6" + report.getReportType(),
-                            "&7Player: &6" + report.getPlayerName(),
+                            "&7Player: &6" + report.getPlayerName(), //error
                             "&7Reporter: &6"+ report.getTargetName(),
                             "&7Date: &6" + date,
                             "&7Report State: &6" + report.getState().name())
-                    .setTitle(report.getReportUUID().toString())
+                    .setTitle(report.getReportUUID().toString(), false)
                     .build();
             items.add(item.i());
         }
@@ -117,6 +117,8 @@ public class ReportList implements GUI {
         }catch (Exception e){
             return;
         }
+
+        plugin.getLogger().info(uuid.toString());
 
         Report report = ReportManager.getReport(uuid);
 

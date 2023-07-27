@@ -9,6 +9,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -43,16 +44,16 @@ public class ReportListOptions implements GUI{
     public void createItems() {
         //barrier close, red conc delete, black conc resolved, arrow back,
         barrier = new ItemUtils(Material.BARRIER)
-                .setTitle("&cClose Inventory")
+                .setTitle("&cClose Inventory",true)
                 .build();
         redConcrete = new ItemUtils(Material.RED_CONCRETE)
-                .setTitle("&cDelete Report")
+                .setTitle("&cDelete Report",true)
                 .build();
         blackConcrete = new ItemUtils(Material.BLACK_CONCRETE)
-                .setTitle("&aSet as resolved")
+                .setTitle("&aSet as resolved",true)
                 .build();
         arrow = new ItemUtils(Material.ARROW)
-                .setTitle("&7Go back")
+                .setTitle("&7Go back",true)
                 .build();
 
         getGUI().setItem(12, redConcrete);
@@ -79,6 +80,7 @@ public class ReportListOptions implements GUI{
             ReportManager.deleteReport(report.getReportUUID(), plugin);
             GUI i = new ReportList("&aReport List", plugin);
             i.openGUI(p);
+            HandlerList.unregisterAll(this);
         } else if (event.getCurrentItem().equals(blackConcrete)) {
             p.closeInventory();
             try {
@@ -88,10 +90,12 @@ public class ReportListOptions implements GUI{
             }
             GUI i = new ReportList("&aReport List", plugin);
             i.openGUI(p);
+            HandlerList.unregisterAll(this);
         } else if (event.getCurrentItem().equals(arrow)) {
             p.closeInventory();
             GUI i = new ReportList("&aReport List", plugin);
             i.openGUI(p);
+            HandlerList.unregisterAll(this);
         }
 
         event.setCancelled(true);

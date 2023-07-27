@@ -19,7 +19,7 @@ public class Report{
         return UUID.fromString(section.getString("report_uuid"));
     }
 
-    public Report(Main plugin, @NotNull UUID playerUUID, @NotNull UUID reporter, @NotNull String reportType) throws IOException {
+    public Report(Main plugin, @NotNull UUID playerUUID, String playerName, @NotNull UUID reporter, @NotNull String reportType) throws IOException {
 
         this.plugin = plugin;
 
@@ -27,6 +27,7 @@ public class Report{
 
         section = plugin.getReportYML().getFile().createSection(uuid.toString());
         section.set("report_uuid", uuid.toString());
+        section.set("player_name", playerName);
         section.set("player_UUID", playerUUID.toString());
         section.set("timestamp", System.currentTimeMillis());
         section.set("reporter_UUID", reporter.toString());
@@ -35,7 +36,7 @@ public class Report{
 
         plugin.getReportYML().save();
 
-        ReportManager.addReport(this, playerUUID);
+        ReportManager.addReport(this, uuid);
 
     }
 
@@ -43,7 +44,7 @@ public class Report{
         return UUID.fromString( section.getString("player_UUID") );
     }
     public String getPlayerName(){
-        return Bukkit.getPlayer(UUID.fromString( section.getString("player_UUID") )).getName();
+        return section.getString("player_name");
     }
     public ReportState getState() {
         return ReportState.valueOf(section.getString("report_state"));

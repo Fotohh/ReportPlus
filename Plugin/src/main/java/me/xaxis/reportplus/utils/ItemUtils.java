@@ -28,8 +28,12 @@ public class ItemUtils {
         return this;
     }
 
-    public ItemUtils setTitle(String s){
-        itemMeta.setDisplayName(Utils.chat(s));
+    public ItemUtils setTitle(String s, boolean val){
+        if(val) {
+            itemMeta.setDisplayName(Utils.chat(s));
+        }else {
+            itemMeta.setDisplayName(s);
+        }
         return this;
     }
 

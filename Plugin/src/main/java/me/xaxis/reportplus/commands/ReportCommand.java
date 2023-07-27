@@ -42,12 +42,10 @@ public class ReportCommand extends Utils implements CommandExecutor {
                     reportSelection.openGUI(player);
                 }
 
-                return true;
-
             } else {
                 message(player, Lang.NOT_ENOUGH_ARGS);
-                return true;
             }
+            return true;
         }
         return true;
     }

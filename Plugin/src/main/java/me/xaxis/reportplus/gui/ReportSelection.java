@@ -75,7 +75,7 @@ public class ReportSelection extends Utils implements GUI{
             if(material != m) continue;
 
             try {
-                Report report = new Report(plugin, target.getUniqueId(), player.getUniqueId(), s);
+                Report report = new Report(plugin, target.getUniqueId(), target.getName(), player.getUniqueId(), s);
                 player.closeInventory();
                 message(player, Lang.SUCCESSFUL_REPORT, target.getName(), s);
                 reportAlert(target.getName(), player.getName(),s, new Date(report.getTimestamp()).toString());
@@ -100,7 +100,7 @@ public class ReportSelection extends Utils implements GUI{
         Material material = Material.getMaterial(section.getString("MATERIAL"));
         String displayName = section.getString("DISPLAY_NAME");
         ItemUtils item = new ItemUtils(material);
-        return item.setTitle(displayName).lore("&7Left or right click", "&7to select this","&7report type").build();
+        return item.setTitle(displayName,true).lore("&7Left or right click", "&7to select this","&7report type").build();
 
     }
 
