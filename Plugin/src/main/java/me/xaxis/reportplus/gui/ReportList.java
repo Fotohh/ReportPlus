@@ -9,6 +9,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
@@ -46,9 +47,16 @@ public class ReportList implements GUI {
     @Override
     public void createItems() {
 
+        ConfigurationSection section = plugin.getConfig().getConfigurationSection("REPORT_TYPE");
+
+        if(section == null) return;
+
         for(Report report : ReportManager.getReportUUIDMap().values()){
-            Material material = Material.getMaterial(plugin.getConfig().getConfigurationSection("REPORT_TYPE")
-                    .getConfigurationSection(report.getReportType()).getString("MATERIAL"));
+            ConfigurationSection reportSection = section.getConfigurationSection(report.getReportType());
+            if(reportSection == null) continue;
+            String mat = reportSection.getString("MATERIAL");
+            if(mat == null) continue;
+            Material material = Material.getMaterial(mat);
             ItemUtils item = new ItemUtils(material);
             Date date = new Date(report.getTimestamp());
             item.lore("&7Report Type: &6" + report.getReportType(),
@@ -101,7 +109,6 @@ public class ReportList implements GUI {
         } else if(event.getRawSlot() == 49) return;
 
         UUID uuid = UUID.fromString(event.getCurrentItem().getItemMeta().getDisplayName());
-
         Report report = ReportManager.getReport(uuid);
 
         new ReportListOptions(plugin, (Player) event.getWhoClicked(), report);
