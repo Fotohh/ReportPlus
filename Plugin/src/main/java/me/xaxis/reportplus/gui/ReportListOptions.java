@@ -21,13 +21,11 @@ public class ReportListOptions implements GUI{
     private final Inventory inventory;
     private final Main plugin;
     private final Player player;
-    private final LangConfig lang;
     private final Report report;
 
     public ReportListOptions(Main plugin, Player player, Report report){
         this.plugin = plugin;
         this.player = player;
-        this.lang = plugin.getLangConfig();
         this.report =report;
         inventory = Bukkit.createInventory(null, 6*9, "");
         registerListener(plugin).openGUI(player);

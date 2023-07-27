@@ -118,8 +118,6 @@ public class ReportList implements GUI {
             return;
         }
 
-        plugin.getLogger().info(uuid.toString());
-
         Report report = ReportManager.getReport(uuid);
 
         new ReportListOptions(plugin, (Player) event.getWhoClicked(), report);
