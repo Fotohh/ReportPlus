@@ -25,12 +25,13 @@ public class ReportSelection extends Utils implements GUI{
 
     private final Inventory i;
     private final Player player;
-
+    private String title;
     private final Main plugin;
 
     public ReportSelection(Main plugin, String title, Player player){
         super(plugin);
         this.player = player;
+        this.title = title;
         int size = 18;
         i = Bukkit.createInventory(null, size, Utils.chat(title));
         this.plugin = plugin;
@@ -49,6 +50,10 @@ public class ReportSelection extends Utils implements GUI{
         }
     }
 
+    private String strip(String msg){
+        return ChatColor.stripColor(msg);
+    }
+
     @Override
     @EventHandler
     public void onClick(InventoryClickEvent event) {
@@ -57,7 +62,7 @@ public class ReportSelection extends Utils implements GUI{
         if(event.getCurrentItem() == null || event.getCurrentItem().getType() == Material.AIR) return;
         Material material = event.getCurrentItem().getType();
 
-        if(event.getClickedInventory() != getGUI()) return;
+        if(!player.getUniqueId().equals(this.player.getUniqueId())) return;
 
         if(!player.equals(this.player)) return;
 

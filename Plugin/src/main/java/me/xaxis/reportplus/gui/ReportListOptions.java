@@ -64,9 +64,9 @@ public class ReportListOptions implements GUI{
     @EventHandler
     public void onClick(InventoryClickEvent event) {
 
-        if(event.getClickedInventory() != getGUI()) return;
-
         Player p = (Player) event.getWhoClicked();
+
+        if(!p.getUniqueId().equals(this.player.getUniqueId())) return;
 
         if(!p.equals(player)) return;
         if(event.getCurrentItem() == null) return;

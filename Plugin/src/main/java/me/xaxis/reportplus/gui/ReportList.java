@@ -6,6 +6,7 @@ import me.xaxis.reportplus.reports.ReportManager;
 import me.xaxis.reportplus.utils.ItemUtils;
 import me.xaxis.reportplus.utils.Utils;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
@@ -24,6 +25,7 @@ import java.util.UUID;
 public class ReportList implements GUI {
 
     private final List<ItemStack> items = new ArrayList<>();
+    private String title;
     private final int itemsPerPage;
     private int currentPage;
     private final Main plugin;
@@ -31,6 +33,7 @@ public class ReportList implements GUI {
 
     public ReportList(String title, Main plugin) {
         this.plugin = plugin;
+        this.title =title;
         this.itemsPerPage = 45;
         this.currentPage = 1;
         gui = Bukkit.createInventory(null, 54, Utils.chat(title));
@@ -87,12 +90,16 @@ public class ReportList implements GUI {
         gui.setItem(53, createPageButton("Next Page"));
     }
 
+    private String strip(String msg){
+        return ChatColor.stripColor(msg);
+    }
+
     //TODO FIX ITTTTT
 
     @EventHandler
     public void onClick(InventoryClickEvent event) {
 
-        if (!(event.getClickedInventory().equals(getGUI()))) return;
+        if (!(strip(event.getView().getTitle()).equalsIgnoreCase(strip(this.title)))) return;
 
         if (event.getCurrentItem() == null || event.getCurrentItem().getType() == Material.AIR || event.getCurrentItem().getItemMeta() == null) return;
         event.setCancelled(true);
