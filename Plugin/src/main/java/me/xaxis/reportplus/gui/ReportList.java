@@ -6,9 +6,7 @@ import me.xaxis.reportplus.reports.ReportManager;
 import me.xaxis.reportplus.utils.ItemUtils;
 import me.xaxis.reportplus.utils.Utils;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -84,9 +82,9 @@ public class ReportList implements GUI {
         for (int i = startIndex; i < endIndex; i++) {
             gui.addItem(items.get(i));
         }
-        gui.setItem(45, createPageButton("Previous Page", Material.ARROW, currentPage - 1));
+        gui.setItem(45, createPageButton("Previous Page"));
         gui.setItem(49, createPageNumber());
-        gui.setItem(53, createPageButton("Next Page", Material.ARROW, currentPage + 1));
+        gui.setItem(53, createPageButton("Next Page"));
     }
 
     //TODO FIX ITTTTT
@@ -98,29 +96,38 @@ public class ReportList implements GUI {
 
         if (event.getCurrentItem() == null || event.getCurrentItem().getType() == Material.AIR || event.getCurrentItem().getItemMeta() == null) return;
         event.setCancelled(true);
-        if (event.getRawSlot() == 45 && currentPage > 1) {
-            currentPage--;
-            updateGUI();
+        if (event.getRawSlot() == 45) {
+            if(currentPage > 1) {
+                currentPage--;
+                updateGUI();
+            }
             return;
-        } else if (event.getRawSlot() == 53 && currentPage < getTotalPages()) {
-            currentPage++;
-            updateGUI();
+        } else if (event.getRawSlot() == 53) {
+            if(currentPage < getTotalPages()) {
+                currentPage++;
+                updateGUI();
+            }
             return;
         } else if(event.getRawSlot() == 49) return;
 
-        UUID uuid = UUID.fromString(event.getCurrentItem().getItemMeta().getDisplayName());
+        UUID uuid;
+
+        try {
+            uuid = UUID.fromString(event.getCurrentItem().getItemMeta().getDisplayName());
+        }catch (Exception e){
+            return;
+        }
+
         Report report = ReportManager.getReport(uuid);
 
         new ReportListOptions(plugin, (Player) event.getWhoClicked(), report);
-
-        event.setCancelled(true);
 
         HandlerList.unregisterAll(this);
 
     }
 
-    private ItemStack createPageButton(String name, Material material, int page) {
-        ItemStack item = new ItemStack(material);
+    private ItemStack createPageButton(String name) {
+        ItemStack item = new ItemStack(Material.ARROW);
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(Utils.chat(name));
         item.setItemMeta(meta);

@@ -34,7 +34,7 @@ public class ReportSelection extends Utils implements GUI{
         int size = 18;
         i = Bukkit.createInventory(null, size, Utils.chat(title));
         this.plugin = plugin;
-        registerListener(plugin).openGUI(player);
+        registerListener(plugin);
     }
 
     @Override
@@ -101,13 +101,6 @@ public class ReportSelection extends Utils implements GUI{
         String displayName = section.getString("DISPLAY_NAME");
         ItemUtils item = new ItemUtils(material);
         return item.setTitle(displayName).lore("&7Left or right click", "&7to select this","&7report type").build();
-        //    FLYING("REPORT_TYPE.FLYING.MATERIAL", "REPORT_TYPE.FLYING.MATERIAL.DISPLAY_NAME"),
-        //    BHOP("REPORT_TYPE.BHOP.MATERIAL", "REPORT_TYPE.BHOP.MATERIAL.DISPLAY_NAME"),
-        //    AUTOCLICKING("REPORT_TYPE.AUTOCLICKING.MATERIAL", "REPORT_TYPE.AUTOCLICKING.MATERIAL.DISPLAY_NAME"),
-        //    VELOCITY("REPORT_TYPE.VELOCITY.MATERIAL","REPORT_TYPE.VELOCITY.MATERIAL.DISPLAY_NAME"),
-        //    AIMBOT("REPORT_TYPE.AIMBOT.MATERIAL","REPORT_TYPE.AIMBOT.MATERIAL.DISPLAY_NAME"),
-        //    KILLAURA("REPORT_TYPE.KILLAURA.MATERIAL","REPORT_TYPE.KILLAURA.MATERIAL.DISPLAY_NAME"),
-        //    NUKER("REPORT_TYPE.NUKER.MATERIAL","REPORT_TYPE.NUKER.MATERIAL.DISPLAY_NAME");
 
     }
 
