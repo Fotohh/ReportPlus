@@ -13,13 +13,14 @@ import java.util.UUID;
 
 public final class Main extends JavaPlugin {
 
-    ReportYML reportYML = new ReportYML(this);
-    LangConfig langConfig;
+    private final ReportYML reportYML = new ReportYML(this);
+    private final LangConfig langConfig = new LangConfig(this);
+    private final Metrics metrics = new Metrics(this, 20599);
 
     @Override
     public void onEnable() {
+        
         saveDefaultConfig();
-        langConfig = new LangConfig(this);
         new ReportCommand(this);
         new Reports(this);
         try {
@@ -42,6 +43,8 @@ public final class Main extends JavaPlugin {
         } catch (IOException e) {
             throw new RuntimeException("Failed to save Reports.yml",e);
         }
+
+        metrics.shutdown();
 
     }
 
