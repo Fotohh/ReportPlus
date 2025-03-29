@@ -19,13 +19,17 @@ public class ReportYML {
     public void createFile() throws java.io.IOException, org.bukkit.configuration.InvalidConfigurationException{
 
         if(!plugin.getDataFolder().exists()){
-            plugin.getDataFolder().mkdir();
+            if(plugin.getDataFolder().mkdir()) {
+                throw new IOException("Failed to create plugin data folder!");
+            }
         }
 
         file = new File(plugin.getDataFolder(), "Reports.yml");
         yml = new YamlConfiguration();
 
-        if(!file.exists()) file.createNewFile();
+        if(!file.exists() && !file.createNewFile()) {
+            throw new IOException("Failed to create Reports.yml file in plugin data folder!");
+        }
 
         yml.load(file);
 
@@ -38,10 +42,6 @@ public class ReportYML {
     public void set(String path, Object object) throws IOException {
         yml.set(path,object);
         save();
-    }
-
-    public Object get(String path){
-        return yml.get(path);
     }
 
     public void save() throws IOException {

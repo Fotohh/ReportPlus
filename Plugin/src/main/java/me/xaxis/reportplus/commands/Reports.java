@@ -1,7 +1,6 @@
 package me.xaxis.reportplus.commands;
 
 import me.xaxis.reportplus.Main;
-import me.xaxis.reportplus.enums.Lang;
 import me.xaxis.reportplus.enums.Perms;
 import me.xaxis.reportplus.gui.ReportList;
 import me.xaxis.reportplus.utils.Utils;
@@ -21,13 +20,12 @@ public class Reports extends Utils implements CommandExecutor {
         plugin.getCommand("reports").setExecutor(this);
     }
 
-
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
 
-        if(isValid(commandSender,Perms.LIST_REPORTS)){
+        if (isValid(commandSender, Perms.LIST_REPORTS)) {
             Player player = (Player) commandSender;
-            new ReportList(plugin.getLangConfig().getString(Lang.REPORT_LIST_GUI_TITLE), plugin).openGUI(player);
+            new ReportList(plugin, player).openGUI(player);
         }
 
         return true;

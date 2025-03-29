@@ -1,10 +1,8 @@
 package me.xaxis.reportplus.reports;
 
 import me.xaxis.reportplus.Main;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 

@@ -3,6 +3,7 @@ package me.xaxis.reportplus;
 import me.xaxis.reportplus.commands.ReportCommand;
 import me.xaxis.reportplus.commands.Reports;
 import me.xaxis.reportplus.file.LangConfig;
+import me.xaxis.reportplus.listeners.OnInventoryClick;
 import me.xaxis.reportplus.reports.Report;
 import me.xaxis.reportplus.reports.ReportYML;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -21,10 +22,12 @@ public final class Main extends JavaPlugin {
     public void onEnable() {
         
         saveDefaultConfig();
+        getDataFolder().mkdirs();
         new ReportCommand(this);
         new Reports(this);
+        new OnInventoryClick(this);
         try {
-            getReportYML().createFile();
+            reportYML.createFile();
         } catch (IOException | InvalidConfigurationException e) {
             throw new RuntimeException(e);
         }

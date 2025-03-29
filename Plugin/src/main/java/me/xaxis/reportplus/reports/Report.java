@@ -16,7 +16,8 @@ public class Report{
     private final Main plugin;
 
     public UUID getReportUUID() {
-        return UUID.fromString(section.getString("report_uuid"));
+        String reportUUID = section.getString("report_uuid");
+        return UUID.fromString(reportUUID);
     }
 
     public Report(Main plugin, @NotNull UUID playerUUID, String playerName, @NotNull UUID reporter, @NotNull String reportType) throws IOException {
@@ -35,9 +36,7 @@ public class Report{
         section.set("report_state", ReportState.OPEN.name());
 
         plugin.getReportYML().save();
-
         ReportManager.addReport(this, uuid);
-
     }
 
     public UUID getPlayerUUID(){
@@ -69,32 +68,8 @@ public class Report{
         return section.getString("report_type" );
     }
     public Report(@NotNull Main plugin, @NotNull UUID uuid){
-
         this.plugin = plugin;
-
         section = plugin.getReportYML().getFile().getConfigurationSection(uuid.toString());
-
         ReportManager.addReport(this, uuid);
-
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Report report = (Report) o;
-        return Objects.equals(section, report.section);
-    }
-
-    @Override
-    public String toString() {
-        return "Report{" + "section=" + section +
-                ", plugin=" + plugin +
-                '}';
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(section);
     }
 }

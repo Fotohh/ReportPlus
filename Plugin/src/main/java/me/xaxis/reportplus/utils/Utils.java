@@ -59,7 +59,7 @@ public class Utils {
      * @return true if player has perms, false if not
      */
     public boolean checkPermission(@NotNull Player player, Perms... perms) {
-        if(perms != null && perms.length > 0) {
+        if(perms != null) {
             for (Perms perm : perms) {
                 if (perm != null && !player.hasPermission(perm.getPermission())) {
                     message(player, Lang.NO_PERMISSION);
@@ -93,12 +93,10 @@ public class Utils {
      */
     public boolean isValid(@NotNull CommandSender sender, Perms... perms){
 
-        if(!(sender instanceof Player)){
+        if(!(sender instanceof Player player)){
             message(sender, Lang.SENDER_NOT_PLAYER);
             return false;
         }
-
-        Player player = (Player) sender;
 
         return checkPermission(player, perms);
     }
@@ -151,7 +149,6 @@ public class Utils {
      * Send message with prefix
      * @param sender the target to send the message to
      * @param path the message path from the lang config
-     * @return the message with the prefix in front of it
      */
     public void message(CommandSender sender, Lang path){
         sender.sendMessage(plugin.getLangConfig().getString(Lang.PREFIX)+plugin.getLangConfig().getString(path));

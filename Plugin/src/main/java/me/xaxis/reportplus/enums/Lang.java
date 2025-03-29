@@ -9,7 +9,6 @@ public enum Lang {
     NOT_ENOUGH_ARGS("Lang.CommandMessages.not_enough_args", "&4You have not provided the correct amount of arguments!"),
     SUCCESSFUL_REPORT("Lang.PlayerMessages.successful_report", "&aSuccessfully reported %s with hacking type being %s!"),
     REPORT_ALERT("Lang.PlayerMessages.report_alert", "&7-------&4Report Alert&7-------\n&f - Player: %s\n&f - Reporter: %s\n&f - Type: %s\n&f - Timestamp: %s"),
-    REPORT_LIST_GUI_TITLE("Lang.GUI.report_list_title", "&cList of Reports!")
             ;
 
     public String getDefaultValue(){

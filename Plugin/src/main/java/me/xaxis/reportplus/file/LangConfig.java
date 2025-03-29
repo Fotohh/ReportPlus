@@ -27,17 +27,21 @@ public class LangConfig {
     public void createFile() {
         try {
             if (!configFile.exists()) {
-                configFile.createNewFile();
+                if(!configFile.createNewFile()){
+                    plugin.getLogger().severe("Could not create " + fileName + " file.");
+                    return;
+                }
                 plugin.getLogger().info("Created " + fileName + " file.");
             }
 
             fileConfiguration = new YamlConfiguration();
             fileConfiguration.load(configFile);
         } catch (IOException | InvalidConfigurationException e) {
+            plugin.getLogger().severe("Could not load " + fileName + " file.");
             e.printStackTrace();
+            return;
         }
 
-        // Add missing default values
         boolean hasChanged = false;
         for (Lang messagePath : Lang.values()) {
             if (!fileConfiguration.contains(messagePath.getPath())) {

@@ -19,83 +19,80 @@ import org.bukkit.inventory.ItemStack;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
-public class ReportSelection extends Utils implements GUI{
+public class ReportSelection extends Utils {
+
+    public static String GUI_TITLE = "Report Selection";
+
+    public static Map<UUID, ReportSelection> reportSelectionSessions = new ConcurrentHashMap<>();
 
     private final Inventory i;
-    private final Player player;
-    private String title;
+    private final UUID player;
+    private final String title;
     private final Main plugin;
+    private final int size;
+    private final UUID uuid;
+    private final UUID target;
 
-    public ReportSelection(Main plugin, String title, Player player){
-        super(plugin);
-        this.player = player;
-        this.title = title;
-        int size = 18;
-        i = Bukkit.createInventory(null, size, Utils.chat(title));
-        this.plugin = plugin;
-        registerListener(plugin);
+    public int getSize() {
+        return size;
     }
 
-    @Override
+    public String getTitle() {
+        return title;
+    }
+
+    public UUID getUuid() {
+        return uuid;
+    }
+
+    public ReportSelection(Main plugin, Player player, UUID target){
+        super(plugin);
+        uuid = player.getUniqueId();
+        this.target = target;
+        this.player = player.getUniqueId();
+        this.title = GUI_TITLE;
+        size = 18;
+        i = Bukkit.createInventory(null, size, Utils.chat(title));
+        this.plugin = plugin;
+        reportSelectionSessions.put(player.getUniqueId(), this);
+    }
+
+    public UUID getTarget() {
+        return target;
+    }
+
+    public void openGUI(Player player){
+        createItems();
+        player.openInventory(getGUI());
+    }
+
     public Inventory getGUI() {
         return i;
     }
 
-    @Override
     public void createItems() {
         for(String key : plugin.getConfig().getConfigurationSection("REPORT_TYPE").getKeys(false)){
             getGUI().addItem(parseReport(plugin.getConfig().getConfigurationSection("REPORT_TYPE").getConfigurationSection(key)));
         }
+
+        getGUI().setItem(size - 1, new ItemUtils(Material.BARRIER)
+            .setTitle("&cClose Inventory", true)
+            .lore("&7Click to close the inventory")
+            .build()
+        );
     }
 
     private String strip(String msg){
         return ChatColor.stripColor(msg);
     }
 
-    @Override
-    @EventHandler
-    public void onClick(InventoryClickEvent event) {
-        Player player = (Player) event.getWhoClicked();
-        String title = event.getView().getTitle();
-        if(event.getCurrentItem() == null || event.getCurrentItem().getType() == Material.AIR) return;
-        Material material = event.getCurrentItem().getType();
 
-        if(!player.getUniqueId().equals(this.player.getUniqueId())) return;
-
-        if(!player.equals(this.player)) return;
-
-        if(event.getCurrentItem() == null || event.getCurrentItem().getType() == Material.AIR) {
-            return;
-        }
-
-        OfflinePlayer target = Bukkit.getPlayer(UUID.fromString(ChatColor.stripColor(title)));
-
-        if(!isTargetValid(target)) return;
-        ConfigurationSection sec = plugin.getConfig().getConfigurationSection("REPORT_TYPE");
-        for(String s : sec.getKeys(false)){
-            ConfigurationSection a = sec.getConfigurationSection(s);
-            Material m = Material.getMaterial(a.getString("MATERIAL"));
-            if(material != m) continue;
-
-            try {
-                Report report = new Report(plugin, target.getUniqueId(), target.getName(), player.getUniqueId(), s);
-                player.closeInventory();
-                message(player, Lang.SUCCESSFUL_REPORT, target.getName(), s);
-                reportAlert(target.getName(), player.getName(),s, new Date(report.getTimestamp()).toString());
-            } catch (IOException e) {
-                throw new RuntimeException("Unable to register report.", e);
-            }
-
-        }
-
-
-        //set report
-        event.setCancelled(true);
-    }
-
-    private void reportAlert(String target, String reporter, String type, String timestamp){
+    public void reportAlert(String target, String reporter, String type, String timestamp){
         Bukkit.getOnlinePlayers().stream()
                 .filter(player -> player.hasPermission(Perms.REPORT_ALERT.getPermission()))
                 .forEach(player -> message(player,Lang.REPORT_ALERT,target,reporter,type,timestamp));
@@ -106,7 +103,6 @@ public class ReportSelection extends Utils implements GUI{
         String displayName = section.getString("DISPLAY_NAME");
         ItemUtils item = new ItemUtils(material);
         return item.setTitle(displayName,true).lore("&7Left or right click", "&7to select this","&7report type").build();
-
     }
 
 }
