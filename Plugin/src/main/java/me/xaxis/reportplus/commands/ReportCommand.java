@@ -3,7 +3,6 @@ package me.xaxis.reportplus.commands;
 import me.xaxis.reportplus.Main;
 import me.xaxis.reportplus.enums.Perms;
 import me.xaxis.reportplus.gui.ReportSelection;
-import me.xaxis.reportplus.reports.Report;
 import me.xaxis.reportplus.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;

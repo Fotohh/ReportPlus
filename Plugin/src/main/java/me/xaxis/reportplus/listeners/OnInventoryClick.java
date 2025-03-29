@@ -154,7 +154,7 @@ public class OnInventoryClick implements Listener {
 
         if(event.getCurrentItem().equals(options.getBarrier())){
             player.closeInventory();
-        } else if (event.getCurrentItem().getType() == Material.RED_CONCRETE) {
+        } else if (event.getCurrentItem().equals(options.getRedConcrete())) {
             player.closeInventory();
             ReportManager.deleteReport(options.getReport().getReportUUID(), plugin);
             new ReportList(plugin, player).openGUI(player);
