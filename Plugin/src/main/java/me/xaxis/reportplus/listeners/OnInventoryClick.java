@@ -104,6 +104,7 @@ public class OnInventoryClick implements Listener {
 
     private void handleReportList(InventoryClickEvent event){
 
+        //add the ability to select different GUI's... Resolved, Unresolved GUI's. Archiving GUI's, replacing each item with player heads
         Player player = (Player) event.getWhoClicked();
 
         ReportList list = ReportList.reportListSessions.get(player.getUniqueId());
@@ -143,6 +144,9 @@ public class OnInventoryClick implements Listener {
     }
 
     private void handleReportOptions(InventoryClickEvent event){
+
+        //adding custom notes to the player, toggle resolved? (dont know if i did that), more information listed
+        //maybe ban player thru the GUI with custom time and reason?? might be overstepping bounds..
         Player player = (Player) event.getWhoClicked();
         ReportOptions options = ReportOptions.optionSessions.get(player.getUniqueId());
         if(options == null){
