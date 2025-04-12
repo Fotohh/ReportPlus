@@ -14,13 +14,15 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ReportList {
+public class ReportList implements InventoryHolder {
 
     public static String GUI_TITLE = "Reports List";
 
@@ -90,11 +92,9 @@ public class ReportList {
                             "&7Report State: &6" + report.getState().name())
                     .setTitle(report.getReportUUID().toString(), false)
                     .build();
-            items.add(item.i());
+            items.add(item);
         }
-
         pagination();
-
     }
 
     public void updateGUI() {
@@ -131,5 +131,10 @@ public class ReportList {
 
     public int getTotalPages() {
         return (int) Math.ceil((double) items.size() / itemsPerPage);
+    }
+
+    @Override
+    public @NotNull Inventory getInventory() {
+        return gui;
     }
 }

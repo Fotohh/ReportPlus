@@ -8,18 +8,16 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ItemUtils {
+public class ItemUtils extends ItemStack{
 
-    private final ItemStack item;
     private final ItemMeta itemMeta;
 
     public ItemUtils(Material material){
-        item = new ItemStack(material);
-        itemMeta = item.getItemMeta();
+        super(material);
+        itemMeta = getItemMeta();
     }
 
     public ItemUtils lore(String... lore){
-
         if(lore == null || lore.length == 0) return this;
         List<String> l = Arrays.stream(lore)
                 .map(Utils::chat)
@@ -38,12 +36,8 @@ public class ItemUtils {
     }
 
     public ItemStack build(){
-        item.setItemMeta(itemMeta);
-        return item;
-    }
-
-    public ItemStack i(){
-        return item;
+        setItemMeta(itemMeta);
+        return this;
     }
 
 }

@@ -15,7 +15,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.Date;
@@ -24,7 +26,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ReportSelection extends Utils {
+public class ReportSelection extends Utils implements InventoryHolder  {
 
     public static String GUI_TITLE = "Report Selection";
 
@@ -81,7 +83,7 @@ public class ReportSelection extends Utils {
         }
 
         getGUI().setItem(size - 1, new ItemUtils(Material.BARRIER)
-            .setTitle("&cClose Inventory", true)
+            .setTitle("&cCancel", true)
             .lore("&7Click to close the inventory")
             .build()
         );
@@ -91,10 +93,10 @@ public class ReportSelection extends Utils {
         return ChatColor.stripColor(msg);
     }
 
-
     public void reportAlert(String target, String reporter, String type, String timestamp){
         Bukkit.getOnlinePlayers().stream()
-                .filter(player -> player.hasPermission(Perms.REPORT_ALERT.getPermission()))
+                .filter(player -> player.hasPermission(Perms.REPORT_ALERT.getPermission())
+                        && plugin.getConfig().getBoolean("report-list.toggle." + player.getUniqueId()))
                 .forEach(player -> message(player,Lang.REPORT_ALERT,target,reporter,type,timestamp));
     }
 
@@ -105,4 +107,8 @@ public class ReportSelection extends Utils {
         return item.setTitle(displayName,true).lore("&7Left or right click", "&7to select this","&7report type").build();
     }
 
+    @Override
+    public @NotNull Inventory getInventory() {
+        return getGUI();
+    }
 }

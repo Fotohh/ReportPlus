@@ -24,8 +24,27 @@ public class Reports extends Utils implements CommandExecutor {
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
 
         if (isValid(commandSender, Perms.LIST_REPORTS)) {
-            Player player = (Player) commandSender;
-            new ReportList(plugin, player).openGUI(player);
+            if(strings.length == 0) {
+                Player player = (Player) commandSender;
+                new ReportList(plugin, player).openGUI(player);
+            }else if(strings.length == 1) {
+                if(strings[0].equalsIgnoreCase("toggle")) {
+                    Player player = (Player) commandSender;
+                    if(player.hasPermission(Perms.REPORT_ALERT.getPermission())) {
+                        if(plugin.getConfig().getBoolean("report-list.toggle." + player.getUniqueId())) {
+                            plugin.getConfig().set("report-list.toggle." + player.getUniqueId(), false);
+                            plugin.saveConfig();
+                            player.sendMessage(chat("&a&lYou have toggled the report list off!"));
+                        }else{
+                            plugin.getConfig().set("report-list.toggle." + player.getUniqueId(), true);
+                            plugin.saveConfig();
+                            player.sendMessage(chat("&a&lYou have toggled the report list on!"));
+                        }
+                    }else{
+                        player.sendMessage(chat("&c&lYou do not have permission to use this command!"));
+                    }
+                }
+            }
         }
 
         return true;

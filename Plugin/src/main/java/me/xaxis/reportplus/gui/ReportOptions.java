@@ -7,13 +7,15 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class ReportOptions {
+public class ReportOptions implements InventoryHolder {
 
     public static String GUI_TITLE = "Report Options";
 
@@ -92,4 +94,8 @@ public class ReportOptions {
         getGUI().setItem(53, arrow);
     }
 
+    @Override
+    public @NotNull Inventory getInventory() {
+        return inventory;
+    }
 }

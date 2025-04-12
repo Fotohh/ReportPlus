@@ -40,6 +40,13 @@ public class OnInventoryClick implements Listener {
 
         String title = event.getView().getTitle();
 
+
+        if(event.getInventory().getHolder() instanceof ReportList list){
+            event.setCancelled(true);
+
+        }
+
+
         if(title.equalsIgnoreCase(strip(ReportSelection.GUI_TITLE))){
             event.setCancelled(true);
             handleReportSelection(event);
@@ -171,7 +178,7 @@ public class OnInventoryClick implements Listener {
                 throw new RuntimeException("Failed to save config",e);
             }
             new ReportList(plugin, player).openGUI(player);
-            player.sendMessage(ChatColor.RED + "You have set the report as resolved.");
+            player.sendMessage(ChatColor.GREEN + "You have set the report as resolved.");
         } else if (event.getCurrentItem().equals(options.getArrow())) {
             player.closeInventory();
             new ReportList(plugin, player).openGUI(player);
