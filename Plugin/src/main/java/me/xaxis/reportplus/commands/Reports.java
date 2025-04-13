@@ -2,7 +2,9 @@ package me.xaxis.reportplus.commands;
 
 import me.xaxis.reportplus.Main;
 import me.xaxis.reportplus.enums.Perms;
+import me.xaxis.reportplus.enums.ReportState;
 import me.xaxis.reportplus.gui.ReportList;
+import me.xaxis.reportplus.reports.Report;
 import me.xaxis.reportplus.reports.ReportManager;
 import me.xaxis.reportplus.utils.Utils;
 import org.bukkit.command.Command;
@@ -31,7 +33,7 @@ public class Reports extends Utils implements CommandExecutor {
             if(strings.length == 0) {
                 if(commandSender.hasPermission(Perms.LIST_REPORTS.getPermission())) {
                     Player player = (Player) commandSender;
-                    new ReportList(plugin, player).openGUI(player);
+                    new ReportList(plugin).openGUI(player);
                     return true;
                 }
             }else if(strings.length == 1) {
@@ -63,9 +65,9 @@ public class Reports extends Utils implements CommandExecutor {
                             return true;
                         }
                         UUID uuid = target.getUniqueId();
-                        if(ReportManager.getReportUUIDMap().containsKey(uuid)) {
-                            ReportManager.deleteReport(uuid, plugin);
-                            player.sendMessage(chat("&a&lYou have deleted the report !"));
+                        if(ReportManager.containsReport(uuid)) {
+                            ReportManager.removeReport(uuid, plugin);
+                            player.sendMessage(chat("&a&lYou have deleted the report!"));
                         }else{
                             player.sendMessage(chat("&c&lThat report does not exist!"));
                         }
@@ -83,9 +85,18 @@ public class Reports extends Utils implements CommandExecutor {
                             return true;
                         }
                         UUID uuid = target.getUniqueId();
-                        if(ReportManager.getReportUUIDMap().containsKey(uuid)) {
+                        if(ReportManager.containsReport(uuid)) {
+                            Report report = ReportManager.getUnresolvedReportFromPlayerUUID(uuid);
+                            if(report == null) {
+                                player.sendMessage(chat("&c&lThat report does not exist!"));
+                                return true;
+                            }
+                            if(report.getState() == ReportState.RESOLVED) {
+                                player.sendMessage(chat("&c&lThat report has already been resolved!"));
+                                return true;
+                            }
                             try {
-                                ReportManager.getReport(uuid).resolve();
+                                report.resolve();
                             } catch (IOException e) {
                                 player.sendMessage(chat("&c&lThat report does not exist!"));
                                 return true;

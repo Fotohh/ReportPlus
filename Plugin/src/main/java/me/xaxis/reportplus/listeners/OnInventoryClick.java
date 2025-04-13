@@ -10,10 +10,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 
 public class OnInventoryClick implements Listener {
 
-    private final Main plugin;
-
     public OnInventoryClick(Main plugin) {
-        this.plugin = plugin;
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
@@ -21,18 +18,18 @@ public class OnInventoryClick implements Listener {
     public void InventoryClick(InventoryClickEvent event){
 
         if(event.getInventory().getHolder() instanceof ReportList list){
-            event.setCancelled(true);
             list.onClick(event);
+            event.setCancelled(true);
         }
 
         if(event.getInventory().getHolder() instanceof ReportOptions options){
-            event.setCancelled(true);
             options.onClick(event);
+            event.setCancelled(true);
         }
 
         if(event.getInventory().getHolder() instanceof ReportSelection selection){
-            event.setCancelled(true);
             selection.onClick(event);
+            event.setCancelled(true);
         }
 
     }

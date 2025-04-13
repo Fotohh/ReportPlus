@@ -36,15 +36,12 @@ public class ReportCommand extends Utils implements CommandExecutor {
                 OfflinePlayer target = Bukkit.getPlayer(s);
 
                 if (isTargetValid(player, target)) {
-                    if(target.getUniqueId().equals(player.getUniqueId())){
+                    /*if(target.getUniqueId().equals(player.getUniqueId())){
                         player.sendMessage(chat("&c&lYou cannot report yourself!"));
                         return true;
-                    }
+                    }*/ //TODO make sure to uncomment this once done testing!!
                     ReportSelection reportSelection = new ReportSelection(plugin, player, target.getUniqueId());
                     reportSelection.openGUI(player);
-                }else{
-                    player.sendMessage(chat("&c&lThat player is not online or doesn't exist!"));
-                    return true;
                 }
 
             } else {

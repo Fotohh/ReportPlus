@@ -57,7 +57,7 @@ public class ReportSelection extends Utils implements InventoryHolder  {
         this.player = player.getUniqueId();
         this.title = GUI_TITLE;
         size = 18;
-        i = Bukkit.createInventory(null, size, Utils.chat(title));
+        i = Bukkit.createInventory(this, size, Utils.chat(title));
         this.plugin = plugin;
     }
 

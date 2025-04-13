@@ -3,18 +3,16 @@ package me.xaxis.reportplus.gui;
 import com.github.fotohh.itemutil.EnchantmentBuilder;
 import com.github.fotohh.itemutil.ItemBuilder;
 import me.xaxis.reportplus.Main;
+import me.xaxis.reportplus.enums.ReportState;
 import me.xaxis.reportplus.reports.Report;
 import me.xaxis.reportplus.reports.ReportManager;
 import me.xaxis.reportplus.utils.ItemUtils;
 import me.xaxis.reportplus.utils.Utils;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.HandlerList;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -25,43 +23,23 @@ import org.bukkit.profile.PlayerProfile;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class ReportList implements InventoryHolder {
 
     public static String GUI_TITLE = "Reports List";
 
     private final List<ItemStack> items = new ArrayList<>();
-    private final String title;
     private final int itemsPerPage;
     private int currentPage;
     private final Main plugin;
     private final Inventory gui;
-    private final UUID uuid;
 
-    public ReportList(Main plugin, Player player) {
-        uuid = player.getUniqueId();
+    public ReportList(Main plugin) {
         this.plugin = plugin;
-        this.title = GUI_TITLE;
+        String title = GUI_TITLE;
         this.itemsPerPage = 45;
         this.currentPage = 1;
-        gui = Bukkit.createInventory(null, 54, Utils.chat(title));
-    }
-
-    public void setCurrentPage(int currentPage) {
-        this.currentPage = currentPage;
-    }
-
-    public int getCurrentPage() {
-        return currentPage;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public UUID getUuid() {
-        return uuid;
+        gui = Bukkit.createInventory(this, 54, Utils.chat(title));
     }
 
     public void openGUI(Player player){
@@ -74,12 +52,17 @@ public class ReportList implements InventoryHolder {
     }
 
     public void createItems() {
+        items.clear();
 
         ConfigurationSection section = plugin.getConfig().getConfigurationSection("REPORT_TYPE");
 
         if(section == null) return;
 
         for(Report report : ReportManager.getReportUUIDMap().values()){
+            if(!showAll) {
+                if (report.getState() == ReportState.RESOLVED && filterResolved) continue;
+                if (report.getState() == ReportState.OPEN && !filterResolved) continue;
+            }
             Player target = Bukkit.getPlayer(report.getPlayerUUID());
             if(target == null) continue;
             PlayerProfile profile = target.getPlayerProfile();
@@ -103,38 +86,45 @@ public class ReportList implements InventoryHolder {
 
     public void updateGUI() {
         gui.clear();
+        createItems();
         pagination();
     }
 
-    private boolean filterResolved = false, filterUnresolved = false;
+    private boolean filterResolved = false;
 
     private void pagination() {
+        if (items.isEmpty()) {
+            gui.setItem(22, new ItemBuilder(Material.BARRIER).withTitle("No Reports").build());
+            return;
+        }
+        int counter = 0;
         int startIndex = (currentPage - 1) * itemsPerPage;
         int endIndex = Math.min(startIndex + itemsPerPage, items.size());
         for (int i = startIndex; i < endIndex; i++) {
-            ItemStack item = items.get(i);
-            if(item.getItemMeta().getLore().get(4).contains("RESOLVED") && filterResolved) continue;
-            if(item.getItemMeta().getLore().get(4).contains("OPEN") && filterUnresolved) continue;
-            gui.addItem(items.get(i));
+            gui.setItem(counter, items.get(i));
+            counter++;
         }
         gui.setItem(45, createPageButton("Previous Page"));
 
-        if(filterUnresolved) filterUnresolved = false;
-        if(filterResolved) filterResolved = false;
 
-        ItemBuilder filterResolvedItem = new ItemBuilder(Material.BOOK).withTitle("Filter Resolved Reports");
-        if(filterResolved) {
-            filterResolvedItem.addEnchantment(new EnchantmentBuilder(Enchantment.KNOCKBACK, 1, true));
-        }
+        ItemBuilder filterResolvedItem = new ItemBuilder(Material.BOOK).withTitle("Filter Out Resolved Reports");
+        ItemMeta filterResolvedMeta = filterResolvedItem.getItemMeta();
+        filterResolvedMeta.setEnchantmentGlintOverride(filterResolved);
+        filterResolvedItem.setItemMeta(filterResolvedMeta);
+
         filterResolvedItem.withLore(" ");
         gui.setItem(46, filterResolvedItem.build());
 
-        ItemBuilder filterUnresolvedItem = new ItemBuilder(Material.BOOK).withTitle("Filter Unresolved Reports");
-        if(filterUnresolved) {
-            filterUnresolvedItem.addEnchantment(new EnchantmentBuilder(Enchantment.KNOCKBACK, 1, true));
-        }
+        ItemBuilder filterUnresolvedItem = new ItemBuilder(Material.BOOK).withTitle("Filter Out Open Reports");
+        ItemMeta filterUnresolvedMeta = filterUnresolvedItem.getItemMeta();
+        if(!filterResolved) filterUnresolvedMeta.setEnchantmentGlintOverride(true);
+        filterUnresolvedItem.setItemMeta(filterUnresolvedMeta);
+
         filterUnresolvedItem.withLore(" ");
         gui.setItem(47, filterUnresolvedItem.build());
+
+        ItemBuilder allReportsItem = new ItemBuilder(Material.BOOK).withTitle("Show All Reports").withLore(" ").build();
+        gui.setItem(48, allReportsItem);
 
         gui.setItem(49, createPageNumber());
         gui.setItem(53, createPageButton("Next Page"));
@@ -165,6 +155,8 @@ public class ReportList implements InventoryHolder {
         return gui;
     }
 
+    private boolean showAll = true;
+
 
     public void onClick(InventoryClickEvent event){
 
@@ -184,14 +176,16 @@ public class ReportList implements InventoryHolder {
             case 46 -> {
                 //filter resolved reports
                 filterResolved = true;
+                showAll = false;
                 currentPage = 1;
-                pagination();
+                updateGUI();
             }
             case 47 -> {
                 //filter unresolved reports
-                filterUnresolved = true;
+                filterResolved = false;
+                showAll = false;
                 currentPage = 1;
-                pagination();
+                updateGUI();
             }
             case 49 -> {
                 return;
@@ -202,6 +196,12 @@ public class ReportList implements InventoryHolder {
                     updateGUI();
                 }
                 return;
+            }
+            case 48 -> {
+                //show all reports
+                showAll = true;
+                currentPage = 1;
+                updateGUI();
             }
         }
 
