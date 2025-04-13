@@ -30,8 +30,6 @@ public class ReportSelection extends Utils implements InventoryHolder  {
 
     public static String GUI_TITLE = "Report Selection";
 
-    public static Map<UUID, ReportSelection> reportSelectionSessions = new ConcurrentHashMap<>();
-
     private final Inventory i;
     private final UUID player;
     private final String title;
@@ -61,7 +59,6 @@ public class ReportSelection extends Utils implements InventoryHolder  {
         size = 18;
         i = Bukkit.createInventory(null, size, Utils.chat(title));
         this.plugin = plugin;
-        reportSelectionSessions.put(player.getUniqueId(), this);
     }
 
     public UUID getTarget() {
@@ -110,5 +107,35 @@ public class ReportSelection extends Utils implements InventoryHolder  {
     @Override
     public @NotNull Inventory getInventory() {
         return getGUI();
+    }
+
+    public void onClick(InventoryClickEvent event){
+
+        Player player = (Player) event.getWhoClicked();
+        if(event.getCurrentItem() == null || event.getCurrentItem().getType() == Material.AIR) return;
+        Material material = event.getCurrentItem().getType();
+
+        OfflinePlayer target = Bukkit.getPlayer(getTarget());
+
+        if(target == null) return;
+
+        if(event.getRawSlot() == size - 1){
+            player.closeInventory();
+        }
+
+        ConfigurationSection sec = plugin.getConfig().getConfigurationSection("REPORT_TYPE");
+        for(String s : sec.getKeys(false)){
+            ConfigurationSection a = sec.getConfigurationSection(s);
+            Material m = Material.getMaterial(a.getString("MATERIAL"));
+            if(material != m) continue;
+            try {
+                Report report = new Report(plugin, target.getUniqueId(), target.getName(), player.getUniqueId(), s);
+                player.closeInventory();
+                message(player, Lang.SUCCESSFUL_REPORT, target.getName(), s);
+                reportAlert(target.getName(), player.getName(),s, new Date(report.getTimestamp()).toString());
+            } catch (IOException e) {
+                throw new RuntimeException("Unable to register report.", e);
+            }
+        }
     }
 }

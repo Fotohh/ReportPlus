@@ -87,6 +87,11 @@
             <classifier>remapped-mojang</classifier>
         </dependency>
         <dependency>
+            <groupId>com.github.Fotohh</groupId>
+            <artifactId>GeneralSpigotHelper</artifactId>
+            <version>3.0.2</version>
+        </dependency>
+        <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
             <version>24.0.1</version>

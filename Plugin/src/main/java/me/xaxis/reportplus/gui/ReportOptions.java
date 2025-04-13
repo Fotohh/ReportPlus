@@ -2,15 +2,19 @@ package me.xaxis.reportplus.gui;
 
 import me.xaxis.reportplus.Main;
 import me.xaxis.reportplus.reports.Report;
+import me.xaxis.reportplus.reports.ReportManager;
 import me.xaxis.reportplus.utils.ItemUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -18,8 +22,6 @@ import java.util.UUID;
 public class ReportOptions implements InventoryHolder {
 
     public static String GUI_TITLE = "Report Options";
-
-    public static Map<UUID, ReportOptions> optionSessions = new HashMap<>();
 
     private final Inventory inventory;
     private final Main plugin;
@@ -33,7 +35,6 @@ public class ReportOptions implements InventoryHolder {
         this.player = player.getUniqueId();
         this.report =report;
         inventory = Bukkit.createInventory(null, 6*9, GUI_TITLE);
-        optionSessions.put(uuid, this);
     }
 
     public UUID getUuid() {
@@ -97,5 +98,37 @@ public class ReportOptions implements InventoryHolder {
     @Override
     public @NotNull Inventory getInventory() {
         return inventory;
+    }
+
+    public void onClick(InventoryClickEvent event){
+
+        //adding custom notes to the player, toggle resolved? (dont know if i did that), more information listed
+        //maybe ban player thru the GUI with custom time and reason?? might be overstepping bounds..
+        Player player = (Player) event.getWhoClicked();
+
+        if(event.getCurrentItem() == null) return;
+
+        if(event.getCurrentItem().equals(getBarrier())){
+            player.closeInventory();
+        } else if (event.getCurrentItem().equals(getRedConcrete())) {
+            player.closeInventory();
+            ReportManager.deleteReport(getReport().getReportUUID(), plugin);
+            new ReportList(plugin, player).openGUI(player);
+            player.sendMessage(ChatColor.RED + "You have removed the report from the list.");
+        } else if (event.getCurrentItem().equals(getBlackConcrete())) {
+            player.closeInventory();
+            try {
+                getReport().resolve();
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to save config",e);
+            }
+            new ReportList(plugin, player).openGUI(player);
+            player.sendMessage(ChatColor.GREEN + "You have set the report as resolved.");
+        } else if (event.getCurrentItem().equals(getArrow())) {
+            player.closeInventory();
+            new ReportList(plugin, player).openGUI(player);
+        }
+
+        event.setCancelled(true);
     }
 }

@@ -26,8 +26,6 @@ public class ReportList implements InventoryHolder {
 
     public static String GUI_TITLE = "Reports List";
 
-    public static Map<UUID, ReportList> reportListSessions = new ConcurrentHashMap<>();
-
     private final List<ItemStack> items = new ArrayList<>();
     private final String title;
     private final int itemsPerPage;
@@ -43,7 +41,6 @@ public class ReportList implements InventoryHolder {
         this.itemsPerPage = 45;
         this.currentPage = 1;
         gui = Bukkit.createInventory(null, 54, Utils.chat(title));
-        reportListSessions.put(uuid, this);
     }
 
     public void setCurrentPage(int currentPage) {
@@ -136,5 +133,40 @@ public class ReportList implements InventoryHolder {
     @Override
     public @NotNull Inventory getInventory() {
         return gui;
+    }
+
+
+    public void onClick(InventoryClickEvent event){
+
+        //add the ability to select different GUI's... Resolved, Unresolved GUI's. Archiving GUI's, replacing each item with player heads
+        Player player = (Player) event.getWhoClicked();
+
+        if (event.getCurrentItem() == null || event.getCurrentItem().getType() == Material.AIR || event.getCurrentItem().getItemMeta() == null) return;
+        event.setCancelled(true);
+        if (event.getRawSlot() == 45) { // prev page
+            if(currentPage > 1) {
+                currentPage--;
+                updateGUI();
+            }
+            return;
+        } else if (event.getRawSlot() == 53) { // next page
+            if(currentPage < getTotalPages()) {
+                currentPage++;
+                updateGUI();
+            }
+            return;
+        } else if(event.getRawSlot() == 49) return; // page number
+
+        UUID uuid;
+
+        try {
+            uuid = UUID.fromString(event.getCurrentItem().getItemMeta().getDisplayName());
+        }catch (Exception e){
+            return;
+        }
+
+        Report report = ReportManager.getReport(uuid);
+
+        new ReportOptions(plugin, (Player) event.getWhoClicked(), report).openGUI(player);
     }
 }

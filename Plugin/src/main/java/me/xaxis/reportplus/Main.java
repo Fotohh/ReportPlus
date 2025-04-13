@@ -1,5 +1,6 @@
 package me.xaxis.reportplus;
 
+import com.github.fotohh.utility.UpdateChecker;
 import me.xaxis.reportplus.commands.ReportCommand;
 import me.xaxis.reportplus.commands.Reports;
 import me.xaxis.reportplus.file.LangConfig;
@@ -20,7 +21,11 @@ public final class Main extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        
+
+        UpdateChecker updateChecker = new UpdateChecker(109542, "https://modrinth.com/plugin/reports+", this, "Update Checker");
+        updateChecker.setOutdatedPluginMessage("There is a new version of Reports available! Please update to the latest version.");
+        updateChecker.setUpToDatePluginMessage("Your plugin is up to date!");
+        updateChecker.runAsync();
         saveDefaultConfig();
         getDataFolder().mkdirs();
         new ReportCommand(this);
