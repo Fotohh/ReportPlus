@@ -1,9 +1,11 @@
 package me.xaxis.reportplus.gui;
 
 import me.xaxis.reportplus.Main;
+import me.xaxis.reportplus.enums.Lang;
 import me.xaxis.reportplus.reports.Report;
 import me.xaxis.reportplus.reports.ReportManager;
 import me.xaxis.reportplus.utils.ItemUtils;
+import me.xaxis.reportplus.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -21,24 +23,16 @@ import java.util.UUID;
 
 public class ReportOptions implements InventoryHolder {
 
-    public static String GUI_TITLE = "Report Options";
-
     private final Inventory inventory;
     private final Main plugin;
     private final UUID player;
     private final Report report;
-    private final UUID uuid;
 
     public ReportOptions(Main plugin, Player player, Report report){
-        uuid = player.getUniqueId();
         this.plugin = plugin;
         this.player = player.getUniqueId();
         this.report =report;
-        inventory = Bukkit.createInventory(this, 6*9, GUI_TITLE);
-    }
-
-    public UUID getUuid() {
-        return uuid;
+        inventory = Bukkit.createInventory(this, 6*9, Utils.get(Lang.GUI_OPTIONS_TITLE, plugin));
     }
 
     public Report getReport() {
@@ -58,36 +52,18 @@ public class ReportOptions implements InventoryHolder {
         return inventory;
     }
 
-    public ItemStack getBarrier() {
-        return barrier;
-    }
-
-    public ItemStack getArrow() {
-        return arrow;
-    }
-
-    public ItemStack getBlackConcrete() {
-        return blackConcrete;
-    }
-
-    public ItemStack getRedConcrete() {
-        return redConcrete;
-    }
-
-    private ItemStack barrier,redConcrete,blackConcrete,arrow;
-
     public void createItems() {
-        barrier = new ItemUtils(Material.BARRIER)
-                .setTitle("&cClose Inventory",true)
+        ItemStack barrier = new ItemUtils(Material.BARRIER)
+                .setTitle(Utils.get(Lang.GUI_OPTIONS_CLOSE, plugin), true)
                 .build();
-        redConcrete = new ItemUtils(Material.RED_CONCRETE)
-                .setTitle("&cDelete Report",true)
+        ItemStack redConcrete = new ItemUtils(Material.RED_CONCRETE)
+                .setTitle(Utils.get(Lang.GUI_OPTIONS_DELETE, plugin), true)
                 .build();
-        blackConcrete = new ItemUtils(Material.BLACK_CONCRETE)
-                .setTitle("&aSet as resolved",true)
+        ItemStack blackConcrete = new ItemUtils(Material.BLACK_CONCRETE)
+                .setTitle(Utils.get(Lang.GUI_OPTIONS_RESOLVE, plugin), true)
                 .build();
-        arrow = new ItemUtils(Material.ARROW)
-                .setTitle("&7Go back",true)
+        ItemStack arrow = new ItemUtils(Material.ARROW)
+                .setTitle(Utils.get(Lang.GUI_ITEM_GO_BACK, plugin), true)
                 .build();
         getGUI().setItem(12, redConcrete);
         getGUI().setItem(13, blackConcrete);
@@ -118,7 +94,7 @@ public class ReportOptions implements InventoryHolder {
                 player.closeInventory();
                 ReportManager.deleteReport(getReport().getReportUUID(), plugin);
                 new ReportList(plugin).openGUI(player);
-                player.sendMessage(ChatColor.RED + "You have removed the report from the list.");
+                player.sendMessage(Utils.getP(Lang.REMOVED_REPORT, plugin));
             }
             case BLACK_CONCRETE -> {
                 player.closeInventory();
@@ -128,8 +104,10 @@ public class ReportOptions implements InventoryHolder {
                     throw new RuntimeException("Failed to save config",e);
                 }
                 new ReportList(plugin).openGUI(player);
-                player.sendMessage(ChatColor.GREEN + "You have set the report as resolved.");
+                player.sendMessage(Utils.getP(Lang.SET_REPORT_AS_RESOLVED, plugin));
+
             }
         }
     }
+
 }

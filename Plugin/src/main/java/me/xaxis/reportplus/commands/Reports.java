@@ -1,6 +1,7 @@
 package me.xaxis.reportplus.commands;
 
 import me.xaxis.reportplus.Main;
+import me.xaxis.reportplus.enums.Lang;
 import me.xaxis.reportplus.enums.Perms;
 import me.xaxis.reportplus.enums.ReportState;
 import me.xaxis.reportplus.gui.ReportList;
@@ -43,14 +44,14 @@ public class Reports extends Utils implements CommandExecutor {
                         if(plugin.getConfig().getBoolean("report-list.toggle." + player.getUniqueId())) {
                             plugin.getConfig().set("report-list.toggle." + player.getUniqueId(), false);
                             plugin.saveConfig();
-                            player.sendMessage(chat("&a&lYou have toggled report alerts off!"));
+                            player.sendMessage(Utils.getP(Lang.TOGGLED_REPORT_OFF));
                         }else{
                             plugin.getConfig().set("report-list.toggle." + player.getUniqueId(), true);
                             plugin.saveConfig();
-                            player.sendMessage(chat("&a&lYou have toggled report alerts on!"));
+                            player.sendMessage(Utils.getP(Lang.TOGGLED_REPORT_ON));
                         }
                     }else{
-                        player.sendMessage(chat("&c&lYou do not have permission to use this command!"));
+                        player.sendMessage(Utils.getP(Lang.NO_PERMISSION));
                     }
                     return true;
                 }
@@ -61,18 +62,18 @@ public class Reports extends Utils implements CommandExecutor {
                         String targetString = strings[1];
                         Player target = plugin.getServer().getPlayer(targetString);
                         if(target == null) {
-                            player.sendMessage(chat("&c&lThat player is not online or doesn't exist!"));
+                            player.sendMessage(Utils.getP(Lang.INVALID_PLAYER));
                             return true;
                         }
                         UUID uuid = target.getUniqueId();
                         if(ReportManager.containsReport(uuid)) {
                             ReportManager.removeReport(uuid, plugin);
-                            player.sendMessage(chat("&a&lYou have deleted the report!"));
+                            player.sendMessage(Utils.getP(Lang.DELETED_REPORT));
                         }else{
-                            player.sendMessage(chat("&c&lThat report does not exist!"));
+                            player.sendMessage(Utils.getP(Lang.REPORT_NOT_FOUND));
                         }
                     }else{
-                        player.sendMessage(chat("&c&lYou do not have permission to use this command!"));
+                        player.sendMessage(Utils.getP(Lang.NO_PERMISSION));
                     }
                     return true;
                 }else if(strings[0].equalsIgnoreCase("resolve")) {
@@ -81,32 +82,32 @@ public class Reports extends Utils implements CommandExecutor {
                         String targetString = strings[1];
                         Player target = plugin.getServer().getPlayer(targetString);
                         if(target == null) {
-                            player.sendMessage(chat("&c&lThat player is not online or doesn't exist!"));
+                            player.sendMessage(Utils.getP(Lang.INVALID_PLAYER));
                             return true;
                         }
                         UUID uuid = target.getUniqueId();
                         if(ReportManager.containsReport(uuid)) {
                             Report report = ReportManager.getUnresolvedReportFromPlayerUUID(uuid);
                             if(report == null) {
-                                player.sendMessage(chat("&c&lThat report does not exist!"));
+                                player.sendMessage(Utils.getP(Lang.REPORT_NOT_FOUND));
                                 return true;
                             }
                             if(report.getState() == ReportState.RESOLVED) {
-                                player.sendMessage(chat("&c&lThat report has already been resolved!"));
+                                player.sendMessage(Utils.getP(Lang.REPORT_ALREADY_RESOLVED));
                                 return true;
                             }
                             try {
                                 report.resolve();
                             } catch (IOException e) {
-                                player.sendMessage(chat("&c&lThat report does not exist!"));
+                                player.sendMessage(Utils.getP(Lang.REPORT_NOT_FOUND));
                                 return true;
                             }
-                            player.sendMessage(chat("&a&lYou have resolved the report!"));
+                            player.sendMessage(Utils.getP(Lang.SET_REPORT_AS_RESOLVED));
                         }else{
-                            player.sendMessage(chat("&c&lThat report does not exist!"));
+                            player.sendMessage(Utils.getP(Lang.REPORT_NOT_FOUND));
                         }
                     }else{
-                        player.sendMessage(chat("&c&lYou do not have permission to use this command!"));
+                        player.sendMessage(Utils.getP(Lang.NO_PERMISSION));
                     }
                 }
             }

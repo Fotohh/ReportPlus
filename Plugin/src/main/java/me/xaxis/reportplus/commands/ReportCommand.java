@@ -1,6 +1,7 @@
 package me.xaxis.reportplus.commands;
 
 import me.xaxis.reportplus.Main;
+import me.xaxis.reportplus.enums.Lang;
 import me.xaxis.reportplus.enums.Perms;
 import me.xaxis.reportplus.gui.ReportSelection;
 import me.xaxis.reportplus.utils.Utils;
@@ -37,7 +38,7 @@ public class ReportCommand extends Utils implements CommandExecutor {
 
                 if (isTargetValid(player, target)) {
                     if(target.getUniqueId().equals(player.getUniqueId())){
-                        player.sendMessage(chat("&c&lYou cannot report yourself!"));
+                        message(player, Lang.CANNOT_REPORT_SELF);
                         return true;
                     }
                     ReportSelection reportSelection = new ReportSelection(plugin, player, target.getUniqueId());
@@ -45,7 +46,7 @@ public class ReportCommand extends Utils implements CommandExecutor {
                 }
 
             } else {
-                player.sendMessage(chat("&c&lUsage: /report <target>"));
+                message(player, Lang.INVALID_REPORT_USAGE);
             }
             return true;
         }

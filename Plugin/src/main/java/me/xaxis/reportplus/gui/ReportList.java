@@ -3,6 +3,7 @@ package me.xaxis.reportplus.gui;
 import com.github.fotohh.itemutil.EnchantmentBuilder;
 import com.github.fotohh.itemutil.ItemBuilder;
 import me.xaxis.reportplus.Main;
+import me.xaxis.reportplus.enums.Lang;
 import me.xaxis.reportplus.enums.ReportState;
 import me.xaxis.reportplus.reports.Report;
 import me.xaxis.reportplus.reports.ReportManager;
@@ -26,8 +27,6 @@ import java.util.*;
 
 public class ReportList implements InventoryHolder {
 
-    public static String GUI_TITLE = "Reports List";
-
     private final List<ItemStack> items = new ArrayList<>();
     private final int itemsPerPage;
     private int currentPage;
@@ -36,7 +35,7 @@ public class ReportList implements InventoryHolder {
 
     public ReportList(Main plugin) {
         this.plugin = plugin;
-        String title = GUI_TITLE;
+        String title = Utils.get(Lang.REPORT_LIST_TITLE);
         this.itemsPerPage = 45;
         this.currentPage = 1;
         gui = Bukkit.createInventory(this, 54, Utils.chat(title));

@@ -34,6 +34,36 @@ public class Utils {
     }
 
     /**
+     * Get a message from the lang config with prefix
+     * @param path lang
+     * @param plugin the plugin
+     * @param placeholders the placeholders you want to set
+     * @return the message
+     */
+    public static String getP(Lang path, Main plugin, Object... placeholders){
+        return chat(plugin.getLangConfig().getString(Lang.PREFIX)+plugin.getLangConfig().getString(path, placeholders));
+    }
+
+    public static String getP(Lang path, Object... placeholders){
+        return chat(Main.plugin.getLangConfig().getString(Lang.PREFIX)+Main.plugin.getLangConfig().getString(path, placeholders));
+    }
+
+    public static String get(Lang path, Object... placeholders){
+        return chat(Main.plugin.getLangConfig().getString(path, placeholders));
+    }
+
+    /**
+     * Get a message from the lang config
+     * @param path lang
+     * @param plugin the plugin
+     * @param placeholders the placeholders you want to set
+     * @return the message
+     */
+    public static String get(Lang path, Main plugin, Object... placeholders){
+        return chat(plugin.getLangConfig().getString(path, placeholders));
+    }
+
+    /**
      * Send message with prefix
      * @param player the target to send the message to
      * @param path the message path from the lang config

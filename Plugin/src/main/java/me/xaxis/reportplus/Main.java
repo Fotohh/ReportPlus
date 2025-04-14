@@ -11,15 +11,19 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
 import java.util.UUID;
-
+//TODO more customizability
 public final class Main extends JavaPlugin {
 
     private final ReportYML reportYML = new ReportYML(this);
     private final LangConfig langConfig = new LangConfig(this);
     private final Metrics metrics = new Metrics(this, 20599);
 
+    public static Main plugin;
+
     @Override
     public void onEnable() {
+
+        plugin = this;
 
         new UpdateCheck(109542, "https://modrinth.com/plugin/reports+", this, "Update Checker");
         saveDefaultConfig();
