@@ -10,6 +10,11 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+
 public class Utils {
 
     private final Main plugin;
@@ -61,6 +66,16 @@ public class Utils {
      */
     public static String get(Lang path, Main plugin, Object... placeholders){
         return chat(plugin.getLangConfig().getString(path, placeholders));
+    }
+
+    public static String[] getSL(Lang path, Object... placeholders){
+        List<String> list = Main.plugin.getLangConfig().getConfig().getStringList(path.getPath());
+        AtomicInteger c = new AtomicInteger(-1);
+        list = list.stream().map(Utils::chat).map(s -> {
+            c.getAndIncrement();
+            return s.replace("%s", placeholders[c.get()].toString());
+        }).toList();
+        return list.toArray(new String[list.size() - 1]);
     }
 
     /**

@@ -1,6 +1,5 @@
 package me.xaxis.reportplus.gui;
 
-import com.github.fotohh.itemutil.EnchantmentBuilder;
 import com.github.fotohh.itemutil.ItemBuilder;
 import me.xaxis.reportplus.Main;
 import me.xaxis.reportplus.enums.Lang;
@@ -12,7 +11,6 @@ import me.xaxis.reportplus.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
@@ -67,11 +65,12 @@ public class ReportList implements InventoryHolder {
             PlayerProfile profile = target.getPlayerProfile();
             ItemUtils item = new ItemUtils(Material.PLAYER_HEAD);
             Date date = new Date(report.getTimestamp());
-            item.lore("&7Report Type: &6" + report.getReportType(),
+            /*item.lore("&7Report Type: &6" + report.getReportType(),
                             "&7Player: &6" + report.getPlayerName(),
                             "&7Reporter: &6"+ report.getTargetName(),
                             "&7Date: &6" + date,
-                            "&7Report State: &6" + report.getState().name())
+                            "&7Report State: &6" + report.getState().name())*/
+            item.lore(Utils.getSL(Lang.REPORT_LIST_ITEM_PLAYER_LORE, report.getReportType(), report.getPlayerName(), report.getTargetName(), date, report.getState().name()))
                     .setTitle(report.getReportUUID().toString(), false)
                     .build();
             SkullMeta meta = (SkullMeta) item.getItemMeta();
@@ -93,7 +92,7 @@ public class ReportList implements InventoryHolder {
 
     private void pagination() {
         if (items.isEmpty()) {
-            gui.setItem(22, new ItemBuilder(Material.BARRIER).withTitle("No Reports").build());
+            gui.setItem(22, new ItemBuilder(Material.BARRIER).withTitle(Utils.get(Lang.REPORT_LIST_ITEM_NO_REPORTS)).build());
             return;
         }
         int counter = 0;
@@ -103,10 +102,10 @@ public class ReportList implements InventoryHolder {
             gui.setItem(counter, items.get(i));
             counter++;
         }
-        gui.setItem(45, createPageButton("Previous Page"));
+        gui.setItem(45, createPageButton(Utils.get(Lang.REPORT_LIST_ITEM_PREVIOUS_PAGE)));
 
 
-        ItemBuilder filterResolvedItem = new ItemBuilder(Material.BOOK).withTitle("Filter Out Resolved Reports");
+        ItemBuilder filterResolvedItem = new ItemBuilder(Material.BOOK).withTitle(Utils.get(Lang.REPORT_LIST_ITEM_FILTER_OUT_RESOLVED));
         ItemMeta filterResolvedMeta = filterResolvedItem.getItemMeta();
         filterResolvedMeta.setEnchantmentGlintOverride(filterResolved);
         filterResolvedItem.setItemMeta(filterResolvedMeta);
@@ -114,7 +113,7 @@ public class ReportList implements InventoryHolder {
         filterResolvedItem.withLore(" ");
         gui.setItem(46, filterResolvedItem.build());
 
-        ItemBuilder filterUnresolvedItem = new ItemBuilder(Material.BOOK).withTitle("Filter Out Open Reports");
+        ItemBuilder filterUnresolvedItem = new ItemBuilder(Material.BOOK).withTitle(Utils.get(Lang.REPORT_LIST_ITEM_FILTER_OUT_OPEN));
         ItemMeta filterUnresolvedMeta = filterUnresolvedItem.getItemMeta();
         if(!filterResolved) filterUnresolvedMeta.setEnchantmentGlintOverride(true);
         filterUnresolvedItem.setItemMeta(filterUnresolvedMeta);
@@ -122,11 +121,11 @@ public class ReportList implements InventoryHolder {
         filterUnresolvedItem.withLore(" ");
         gui.setItem(47, filterUnresolvedItem.build());
 
-        ItemBuilder allReportsItem = new ItemBuilder(Material.BOOK).withTitle("Show All Reports").withLore(" ").build();
+        ItemBuilder allReportsItem = new ItemBuilder(Material.BOOK).withTitle(Utils.get(Lang.REPORT_LIST_ITEM_SHOW_ALL)).withLore(" ").build();
         gui.setItem(48, allReportsItem);
 
         gui.setItem(49, createPageNumber());
-        gui.setItem(53, createPageButton("Next Page"));
+        gui.setItem(53, createPageButton(Utils.get(Lang.REPORT_LIST_ITEM_NEXT_PAGE)));
     }
 
     private ItemStack createPageButton(String name) {

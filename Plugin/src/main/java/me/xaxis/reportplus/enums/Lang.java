@@ -1,5 +1,7 @@
 package me.xaxis.reportplus.enums;
 
+import java.util.List;
+
 public enum Lang {
     NO_PERMISSION("Lang.CommandMessages.no_permission", "&4You do not have permission to execute this command!"),
     SENDER_NOT_PLAYER("Lang.CommandMessages.sender_not_player", "&4Only players can execute this command!"),
@@ -24,9 +26,17 @@ public enum Lang {
     DELETED_REPORT("Lang.PlayerMessages.deleted_report", "&aYou have deleted the report!"),
     REPORT_ALREADY_RESOLVED("Lang.PlayerMessages.report_already_resolved", "&4That report has already been resolved!"),
     REPORT_LIST_TITLE("GUI.report_list.title", "&2Report List"),
-            ;
+    REPORT_LIST_ITEM_PLAYER_LORE("GUI.report_list.item.player.lore", List.of("&7Report Type: &6%s", "&7Reporter: &6%s", "&7Player: &6%s", "&7Timestamp: &6%s", "&7State: &6%s")),
+    REPORT_LIST_ITEM_NO_REPORTS("GUI.report_list.item.no_reports", "&4There are no reports!"),
+    REPORT_LIST_ITEM_FILTER_OUT_RESOLVED("GUI.report_list.item.filter_out_resolved", "&7Filter out resolved reports"),
+    REPORT_LIST_ITEM_FILTER_OUT_OPEN("GUI.report_list.item.filter_out_open", "&7Filter out open reports"),
+    REPORT_LIST_ITEM_SHOW_ALL("GUI.report_list.item.show_all", "&7Show all reports"),
+    REPORT_LIST_ITEM_NEXT_PAGE("GUI.report_list.item.next_page", "&7Next Page"),
+    REPORT_LIST_ITEM_PREVIOUS_PAGE("GUI.report_list.item.previous_page", "&7Previous Page"),
+    REPORT_LIST_ITEM_CURRENT_PAGE("GUI.report_list.item.current_page", "&7Current Page: &6%s"),
+    ;
 
-    public String getDefaultValue(){
+    public Object getDefaultValue(){
         return value;
     }
 
@@ -35,9 +45,9 @@ public enum Lang {
     }
 
     private final String path;
-    private final String value;
+    private final Object value;
 
-    Lang(String path, String defaultValue){
+    Lang(String path, Object defaultValue){
         this.path = path;
         this.value = defaultValue;
     }
