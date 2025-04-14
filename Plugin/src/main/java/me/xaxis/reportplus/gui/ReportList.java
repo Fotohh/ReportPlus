@@ -3,6 +3,7 @@ package me.xaxis.reportplus.gui;
 import com.github.fotohh.itemutil.ItemBuilder;
 import me.xaxis.reportplus.Main;
 import me.xaxis.reportplus.enums.Lang;
+import me.xaxis.reportplus.enums.PH;
 import me.xaxis.reportplus.enums.ReportState;
 import me.xaxis.reportplus.reports.Report;
 import me.xaxis.reportplus.reports.ReportManager;
@@ -70,7 +71,13 @@ public class ReportList implements InventoryHolder {
                             "&7Reporter: &6"+ report.getTargetName(),
                             "&7Date: &6" + date,
                             "&7Report State: &6" + report.getState().name())*/
-            item.lore(Utils.getSL(Lang.REPORT_LIST_ITEM_PLAYER_LORE, report.getReportType(), report.getPlayerName(), report.getTargetName(), date, report.getState().name()))
+            String[] list = Utils.getSL(Lang.REPORT_LIST_ITEM_PLAYER_LORE, Map.of(
+                    PH.REPORT_TYPE.toString(), report.getReportType(),
+                    PH.REPORTER.toString(), report.getPlayerName(),
+                    PH.REPORTED.toString(), report.getTargetName(),
+                    PH.TIMESTAMP.toString(), date.toString(),
+                    PH.REPORT_STATE.toString(), report.getState().toString()));
+            item.lore(list)
                     .setTitle(report.getReportUUID().toString(), false)
                     .build();
             SkullMeta meta = (SkullMeta) item.getItemMeta();
@@ -91,10 +98,6 @@ public class ReportList implements InventoryHolder {
     private boolean filterResolved = false;
 
     private void pagination() {
-        if (items.isEmpty()) {
-            gui.setItem(22, new ItemBuilder(Material.BARRIER).withTitle(Utils.get(Lang.REPORT_LIST_ITEM_NO_REPORTS)).build());
-            return;
-        }
         int counter = 0;
         int startIndex = (currentPage - 1) * itemsPerPage;
         int endIndex = Math.min(startIndex + itemsPerPage, items.size());
@@ -102,7 +105,7 @@ public class ReportList implements InventoryHolder {
             gui.setItem(counter, items.get(i));
             counter++;
         }
-        gui.setItem(45, createPageButton(Utils.get(Lang.REPORT_LIST_ITEM_PREVIOUS_PAGE)));
+        gui.setItem(45, createPageButton(Utils.get(Lang.GUI_LIST_ITEM_PREVIOUS_PAGE)));
 
 
         ItemBuilder filterResolvedItem = new ItemBuilder(Material.BOOK).withTitle(Utils.get(Lang.REPORT_LIST_ITEM_FILTER_OUT_RESOLVED));
@@ -139,7 +142,7 @@ public class ReportList implements InventoryHolder {
     private ItemStack createPageNumber() {
         ItemStack item = new ItemStack(Material.PAPER);
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(Utils.chat("&7Page &6" + currentPage + "/" + getTotalPages()));
+        meta.setDisplayName(Utils.get(Lang.GUI_LIST_ITEM_CURRENT_PAGE, Map.of(PH.CURRENT_PAGE.toString(), String.valueOf(currentPage), PH.TOTAL_PAGES.toString(), String.valueOf(getTotalPages()))));
         item.setItemMeta(meta);
         return item;
     }

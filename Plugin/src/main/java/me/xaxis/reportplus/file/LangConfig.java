@@ -51,11 +51,7 @@ public class LangConfig {
         }
 
         if (hasChanged) {
-            try {
-                fileConfiguration.save(configFile);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            saveConfig();
         }
     }
 
@@ -77,7 +73,7 @@ public class LangConfig {
 
     public String getString(Lang path, Object... placeholders) {
         FileConfiguration config = getConfig();
-        String message = config.getString(path.getPath(), path.getDefaultValue());
+        String message = config.getString(path.getPath(), path.getDefaultValue().toString());
 
         if (placeholders != null && placeholders.length > 0) {
             message = String.format(message, placeholders);

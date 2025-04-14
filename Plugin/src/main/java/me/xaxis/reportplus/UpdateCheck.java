@@ -6,9 +6,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.net.ssl.HttpsURLConnection;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
@@ -22,7 +21,8 @@ public class UpdateCheck {
     private final String pluginVersion;
     private final JavaPlugin plugin;
     private final Logger logger;
-    private static final String apiUrl = "https://api.spiget.org/v2/resources/%d/versions/latest";
+    private static final String API_URL = "https://api.spiget.org/v2/resources/%d/versions/latest";
+    private static final String API_DOWNLOAD_LINK = "https://api.spiget.org/v2/resources/%d/download";
     private final String upToDatePluginMessage;
     private final String outdatedPluginMessage;
 
@@ -48,6 +48,10 @@ public class UpdateCheck {
                 logger.info(upToDatePluginMessage);
             } else {
                 logger.warning(outdatedPluginMessage);
+                if(plugin.getConfig().getBoolean("AUTO_UPDATE")) {
+                    logger.info("You have auto update enabled! Downloading new update...");
+                    downloadFile();
+                }
             }
         });
     }
@@ -90,7 +94,7 @@ public class UpdateCheck {
     }
 
     public HttpsURLConnection fetchURL() throws IOException {
-        URL url = URI.create(String.format(apiUrl, resourceID)).toURL();
+        URL url = URI.create(String.format(API_URL, resourceID)).toURL();
         HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
         connection.setRequestMethod("GET");
         return connection;
@@ -101,6 +105,35 @@ public class UpdateCheck {
             JsonObject response = JsonParser.parseReader(in).getAsJsonObject();
             return response.get("name").getAsString();
         }
+    }
+
+    private void downloadFile(){
+
+        File file = new File("./plugins", "serverhubsplus-0.jar");
+        try {
+            URL url = URI.create(String.format(API_DOWNLOAD_LINK, resourceID)).toURL();
+            HttpURLConnection http = (HttpURLConnection) url.openConnection();
+            if (http.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                throw new IOException("Server returned HTTP response code: " + http.getResponseCode());
+            }
+
+            InputStream in = http.getInputStream();
+            OutputStream out = new FileOutputStream(file);
+
+            byte[] buffer = new byte[1024];
+            int length;
+
+            while ((length = in.read(buffer)) != -1) {
+                out.write(buffer, 0, length);
+            }
+
+            in.close();
+            out.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        logger.info("Installation Complete! \nPlease reload/restart the server for changes to take effect.");
     }
 
 }

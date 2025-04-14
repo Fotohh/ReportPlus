@@ -31,12 +31,6 @@ public class ReportManager{
     }
 
     @Nullable
-    public static Report getReportFromPlayerUUID(UUID playerUUID) {
-        Optional<Report> report =  reportUUIDMap.values().stream().filter(r -> r.getPlayerUUID().equals(playerUUID)).findFirst();
-        return report.orElse(null);
-    }
-
-    @Nullable
     public static Report getUnresolvedReportFromPlayerUUID(UUID playerUUID) {
         Optional<Report> report = reportUUIDMap.values().stream().filter(r -> r.getPlayerUUID().equals(playerUUID) && r.getState() != ReportState.RESOLVED).findFirst();
         return report.orElse(null);

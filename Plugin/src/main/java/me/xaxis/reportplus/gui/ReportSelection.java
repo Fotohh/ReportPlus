@@ -1,5 +1,6 @@
 package me.xaxis.reportplus.gui;
 
+import com.github.fotohh.itemutil.ItemBuilder;
 import me.xaxis.reportplus.Main;
 import me.xaxis.reportplus.enums.Lang;
 import me.xaxis.reportplus.enums.Perms;
@@ -12,7 +13,6 @@ import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -21,10 +21,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public class ReportSelection extends Utils implements InventoryHolder  {
 
@@ -80,14 +79,10 @@ public class ReportSelection extends Utils implements InventoryHolder  {
         }
 
         getGUI().setItem(size - 1, new ItemUtils(Material.BARRIER)
-            .setTitle("&cCancel", true)
-            .lore("&7Click to close the inventory")
+            .setTitle(Utils.get(Lang.GUI_SELECTION_ITEM_CANCEL), true)
+            .lore(Utils.get(Lang.GUI_SELECTION_ITEM_CANCEL_LORE))
             .build()
         );
-    }
-
-    private String strip(String msg){
-        return ChatColor.stripColor(msg);
     }
 
     public void reportAlert(String target, String reporter, String type, String timestamp){
@@ -100,8 +95,8 @@ public class ReportSelection extends Utils implements InventoryHolder  {
     private ItemStack parseReport(ConfigurationSection section){
         Material material = Material.getMaterial(section.getString("MATERIAL"));
         String displayName = section.getString("DISPLAY_NAME");
-        ItemUtils item = new ItemUtils(material);
-        return item.setTitle(displayName,true).lore("&7Left or right click", "&7to select this","&7report type").build();
+        List<String> lore = section.getStringList("LORE").stream().map(Utils::chat).toList();
+        return new ItemBuilder(material).withTitle(displayName).withLore(lore.toArray(new String[0])).build();
     }
 
     @Override

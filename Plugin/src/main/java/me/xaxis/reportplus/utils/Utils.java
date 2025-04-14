@@ -10,10 +10,10 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 public class Utils {
 
@@ -68,14 +68,35 @@ public class Utils {
         return chat(plugin.getLangConfig().getString(path, placeholders));
     }
 
-    public static String[] getSL(Lang path, Object... placeholders){
+    public static double getDouble(Lang path){
+        return Main.plugin.getLangConfig().getConfig().getDouble(path.getPath());
+    }
+
+    public static String get(Lang path, Map<String, String> placeholders) {
+        return chat(replacePlaceholders(Main.plugin.getLangConfig().getString(path), placeholders));
+    }
+
+    /*public static String[] getSL(Lang path, Object... placeholders){
         List<String> list = Main.plugin.getLangConfig().getConfig().getStringList(path.getPath());
-        AtomicInteger c = new AtomicInteger(-1);
-        list = list.stream().map(Utils::chat).map(s -> {
-            c.getAndIncrement();
-            return s.replace("%s", placeholders[c.get()].toString());
-        }).toList();
-        return list.toArray(new String[list.size() - 1]);
+        return list.stream()
+                .map(Utils::chat)
+                .map(s -> String.format(s, placeholders))
+                .toList().toArray(new String[0]);
+    }*/
+
+    public static String[] getSL(Lang path, Map<String, String> placeholders){
+        List<String> list = Main.plugin.getLangConfig().getConfig().getStringList(path.getPath());
+        return list.stream()
+                .map(s -> replacePlaceholders(Utils.chat(s), placeholders))
+                .toList().toArray(new String[0]);
+    }
+
+    public static String replacePlaceholders(String input, Map<String, String> placeholders) {
+        for (Map.Entry<String, String> entry : placeholders.entrySet()) {
+            if(!input.contains(entry.getKey())) continue;
+            input = input.replace(entry.getKey(), entry.getValue());
+        }
+        return input;
     }
 
     /**
@@ -85,7 +106,7 @@ public class Utils {
      * @param placeholders the placeholders you want to set
      */
     public void message(Player player, Lang path, Object... placeholders){
-        player.sendMessage(plugin.getLangConfig().getString(Lang.PREFIX)+plugin.getLangConfig().getString(path, placeholders));
+        player.sendMessage(chat(plugin.getLangConfig().getString(Lang.PREFIX)+plugin.getLangConfig().getString(path, placeholders)));
     }
 
     /**

@@ -1,24 +1,48 @@
+VERSION: 1.0
+AUTO_UPDATE: false #enable or disable the plugin automatically downloading a new update.
+
 UUID:
   playerUUID:
 REPORT_TYPE:
   BHOP:
     MATERIAL: 'IRON_BOOTS'
     DISPLAY_NAME: '&4BHOP'
+    LORE:
+      - "&7Left or right click"
+      - "&7to select this report"
   NUKER:
     MATERIAL: 'TNT'
     DISPLAY_NAME: '&4NUKER'
+    LORE:
+      - "&7Left or right click"
+      - "&7to select this report"
   AIMBOT:
     MATERIAL: 'BOW'
     DISPLAY_NAME: '&4AIMBOT'
+    LORE:
+      - "&7Left or right click"
+      - "&7to select this report"
   FLYING:
     MATERIAL: 'FEATHER'
     DISPLAY_NAME: '&4FLYING'
+    LORE:
+      - "&7Left or right click"
+      - "&7to select this report"
   KILLAURA:
     MATERIAL: 'BLAZE_POWDER'
     DISPLAY_NAME: '&4KILL AURA'
+    LORE:
+      - "&7Left or right click"
+      - "&7to select this report"
   VELOCITY:
     MATERIAL: 'ANVIL'
     DISPLAY_NAME: '&4VELOCITY'
+    LORE:
+      - "&7Left or right click"
+      - "&7to select this report"
   AUTOCLICKING:
     MATERIAL: 'IRON_SWORD'
     DISPLAY_NAME: '&4AUTO CLICKING'
+    LORE:
+      - "&7Left or right click"
+      - "&7to select this report"
