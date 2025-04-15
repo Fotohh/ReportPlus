@@ -109,7 +109,7 @@ public class UpdateCheck {
 
     private void downloadFile(){
 
-        File file = new File("./plugins", "serverhubsplus-0.jar");
+        File file = new File("./plugins", "ReportsPlus.jar");
         try {
             URL url = URI.create(String.format(API_DOWNLOAD_LINK, resourceID)).toURL();
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
