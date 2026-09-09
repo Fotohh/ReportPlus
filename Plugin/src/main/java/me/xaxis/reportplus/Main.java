@@ -54,11 +54,23 @@ public final class Main extends JavaPlugin {
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
-        ReportYML initReportYML = new ReportYML(getDataFolder());
+        ReportYML initReportYML = new ReportYML(getDataFolder(), getLogger());
         try {
             initReportYML.load();
+
         } catch (IOException | InvalidConfigurationException e) {
             getLogger().log(Level.SEVERE, "Failed to create reports.yml!", e);
+            Bukkit.getPluginManager().disablePlugin(this);
+            return;
+        }
+        if(!initReportYML.schemaValidation()){
+            getLogger().severe(
+                    "reports.yml config-version is greater than current version! " +
+                    "To avoid destroying any possible data the plugin will not load. " +
+                    "To proceed, please rename your current reports.yml to something else. " +
+                    "Then reload the server to regenerate the reports.yml " +
+                    "This will allow you to preserve your current report data. "
+            );
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }

@@ -72,7 +72,7 @@ public class ReportList implements InventoryHolder {
                             "&7Date: &6" + date,
                             "&7Report State: &6" + report.getState().name())*/
             String[] list = Utils.getSL(Lang.REPORT_LIST_ITEM_PLAYER_LORE, Map.of(
-                    PH.REPORT_TYPE.toString(), report.getReportType(),
+                    PH.REPORT_TYPE.toString(), report.getReportTypeId(),
                     PH.REPORTER.toString(), report.getPlayerName(),
                     PH.REPORTED.toString(), report.getTargetName(),
                     PH.TIMESTAMP.toString(), date.toString(),

@@ -1,75 +1,86 @@
 package me.xaxis.reportplus.reports;
 
-import me.xaxis.reportplus.Main;
 import me.xaxis.reportplus.enums.ReportState;
-import org.bukkit.Bukkit;
-import org.bukkit.configuration.ConfigurationSection;
-import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
-import java.util.Objects;
 import java.util.UUID;
 
-public class Report{
+public class Report {
 
-    private final ConfigurationSection section;
-    private final Main plugin;
+    private final UUID playerUUID;
+    private final UUID reporterUUID;
+    private final String reportTypeId;
+    private final long timestamp;
+    private ReportState reportState;
+    private final UUID reportUUID;
+    private final String playerName;
+    private final String reporterName;
+
+    public Report(UUID playerUUID, String playerName, UUID reporterUUID, String reporterName, String reportTypeId) {
+        this(
+            playerUUID,
+            UUID.randomUUID(),
+            reporterUUID,
+            System.currentTimeMillis(),
+            reportTypeId,
+            ReportState.OPEN,
+            playerName,
+            reporterName
+        );
+    }
+
+    public Report(
+            UUID playerUUID,
+            UUID reportUUID,
+            UUID reporterUUID,
+            long timestamp,
+            String reportTypeId,
+            ReportState reportState,
+            String playerName,
+            String reporterName)
+    {
+        this.reportState = reportState;
+        this.timestamp = timestamp;
+        this.reportTypeId = reportTypeId;
+        this.reportUUID = reportUUID;
+        this.playerUUID = playerUUID;
+        this.reporterUUID = reporterUUID;
+        this.playerName = playerName;
+        this.reporterName = reporterName;
+    }
+
+    public String getPlayerName() {
+        return playerName;
+    }
+
+    public String getReporterName() {
+        return reporterName;
+    }
+
+    public void resolve() {
+        reportState = ReportState.RESOLVED;
+    }
 
     public UUID getReportUUID() {
-        String reportUUID = section.getString("report_uuid");
-        return UUID.fromString(reportUUID);
+        return reportUUID;
     }
 
-    public Report(Main plugin, @NotNull UUID playerUUID, String playerName, @NotNull UUID reporter, @NotNull String reportType) throws IOException {
-
-        this.plugin = plugin;
-
-        UUID uuid = UUID.randomUUID();
-
-        section = plugin.getReportYML().getFile().createSection(uuid.toString());
-        section.set("report_uuid", uuid.toString());
-        section.set("player_name", playerName);
-        section.set("player_UUID", playerUUID.toString());
-        section.set("timestamp", System.currentTimeMillis());
-        section.set("reporter_UUID", reporter.toString());
-        section.set("report_type", reportType);
-        section.set("report_state", ReportState.OPEN.name());
-
-        plugin.getReportYML().save();
-        ReportManager.addReport(this, uuid);
+    public UUID getPlayerUUID() {
+        return playerUUID;
     }
 
-    public UUID getPlayerUUID(){
-        return UUID.fromString( section.getString("player_UUID") );
+    public long getTimestamp() {
+        return timestamp;
     }
-    public String getPlayerName(){
-        return section.getString("player_name");
+
+    public ReportState getReportState() {
+        return reportState;
     }
-    public ReportState getState() {
-        return ReportState.valueOf(section.getString("report_state"));
+
+    public String getReportTypeId() {
+        return reportTypeId;
     }
-    public void setState(ReportState state) throws IOException {
-        section.set("report_state", state.name());
-        plugin.getReportYML().save();
-    }
-    public void resolve() throws IOException {
-        setState(ReportState.RESOLVED);
-    }
-    public String getTargetName(){
-        return Bukkit.getPlayer(UUID.fromString( section.getString("reporter_UUID") )).getName();
-    }
-    public Long getTimestamp(){
-        return section.getLong("timestamp");
-    }
-    public UUID getReporterUUID(){
-        return UUID.fromString( section.getString("reporter_UUID") );
-    }
-    public String getReportType(){
-        return section.getString("report_type" );
-    }
-    public Report(@NotNull Main plugin, @NotNull UUID uuid){
-        this.plugin = plugin;
-        section = plugin.getReportYML().getFile().getConfigurationSection(uuid.toString());
-        ReportManager.addReport(this, uuid);
+
+    public UUID getReporterUUID() {
+        return reporterUUID;
     }
 }

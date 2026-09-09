@@ -2,7 +2,7 @@ main: me.xaxis.reportplus.Main
 name: ReportPlus
 description: Report plugin
 author: Xaxis
-version: 0.8
+version: 0.9
 api-version: 1.21
 commands:
   report:
