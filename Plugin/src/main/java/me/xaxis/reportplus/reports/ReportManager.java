@@ -1,6 +1,5 @@
 package me.xaxis.reportplus.reports;
 
-import jline.internal.Nullable;
 import me.xaxis.reportplus.Main;
 import me.xaxis.reportplus.enums.ReportState;
 
@@ -30,7 +29,6 @@ public class ReportManager{
         return false;
     }
 
-    @Nullable
     public static Report getUnresolvedReportFromPlayerUUID(UUID playerUUID) {
         Optional<Report> report = reportUUIDMap.values().stream().filter(r -> r.getPlayerUUID().equals(playerUUID) && r.getState() != ReportState.RESOLVED).findFirst();
         return report.orElse(null);
