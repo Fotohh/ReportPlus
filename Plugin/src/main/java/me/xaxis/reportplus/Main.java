@@ -7,44 +7,69 @@ import me.xaxis.reportplus.file.LangConfig;
 import me.xaxis.reportplus.listeners.OnInventoryClick;
 import me.xaxis.reportplus.reports.Report;
 import me.xaxis.reportplus.reports.ReportYML;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
 import java.util.UUID;
+import java.util.logging.Level;
 
 public final class Main extends JavaPlugin {
 
-    private final ReportYML reportYML = new ReportYML(this);
-    private final LangConfig langConfig = new LangConfig(this);
-    private final Metrics metrics = new Metrics(this, 20599);
+    private static final int CONFIG_VERSION = 2;
 
-    public static Main plugin;
+    private ReportYML reportYML;
+    private LangConfig langConfig;
+    private Metrics metrics;
 
     @Override
     public void onEnable() {
 
-        plugin = this;
-
-        if(!getDataFolder().exists()) getDataFolder().mkdirs();
-        if(!getConfig().contains("AUTO_UPDATE")){
-            getConfig().set("AUTO_UPDATE", false);
-            saveConfig();
+        if(!getDataFolder().exists()) {
+            if(!getDataFolder().mkdirs()){
+                getLogger().severe("Encountered an unexpected issue creating plugin directory: " + getDataFolder().getAbsolutePath());
+                Bukkit.getPluginManager().disablePlugin(this);
+                return;
+            }
         }
-
-        new UpdateCheck(109542, "https://modrinth.com/plugin/reports+", this, "Update Checker");
         saveDefaultConfig();
-        getDataFolder().mkdirs();
+        if(!getConfig().isSet("config-version")){
+            getLogger().severe("config.yml is missing config-version. Please regenerate the config file either by deleting the current one, or rename your current config.yml, regenerate the config, then copy the contents over.");
+            Bukkit.getPluginManager().disablePlugin(this);
+            return;
+        }
+        if(!getConfig().isInt("config-version")) {
+            getLogger().severe("config-version isn't set correctly. Please regenerate the config file either by deleting the current one, or rename your current config.yml, regenerate the config, then copy the contents over.");
+            Bukkit.getPluginManager().disablePlugin(this);
+            return;
+        }
+        int configVersion = getConfig().getInt("config-version");
+        if(configVersion < CONFIG_VERSION) {
+            getLogger().severe("config.yml is out-of-date. Please regenerate the config file either by deleting the current one, or rename your current config.yml, regenerate the config, then copy the contents over.");
+            Bukkit.getPluginManager().disablePlugin(this);
+            return;
+        }else if(configVersion > CONFIG_VERSION){
+            getLogger().severe("config.yml is of newer version yet the plugin only supports the configuration version " + CONFIG_VERSION + ". Please regenerate the config file either by deleting the current one, or rename your current config.yml, regenerate the config, then copy the contents over.");
+            Bukkit.getPluginManager().disablePlugin(this);
+            return;
+        }
+        ReportYML initReportYML = new ReportYML(getDataFolder());
+        try {
+            initReportYML.load();
+        } catch (IOException | InvalidConfigurationException e) {
+            getLogger().log(Level.SEVERE, "Failed to create reports.yml!", e);
+            Bukkit.getPluginManager().disablePlugin(this);
+            return;
+        }
+        reportYML = initReportYML;
+        langConfig = new LangConfig(this);
+        registerReports();
+        metrics = new Metrics(this, 20599);
         new ReportCommand(this);
         new Reports(this);
         new OnInventoryClick(this);
         getCommand("reports").setTabCompleter(new ReportsTabCompleter());
-        try {
-            reportYML.createFile();
-        } catch (IOException | InvalidConfigurationException e) {
-            throw new RuntimeException(e);
-        }
-        registerReports();
     }
 
     public LangConfig getLangConfig() {
@@ -54,19 +79,29 @@ public final class Main extends JavaPlugin {
     @Override
     public void onDisable() {
 
-        try {
-            getReportYML().save();
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to save Reports.yml",e);
+        if(getReportYML() != null) {
+            try {
+                getReportYML().save();
+            } catch (IOException e) {
+                getLogger().log(Level.SEVERE, "Failed to save reports.yml", e);
+            }
         }
-
-        metrics.shutdown();
+        if(metrics != null) {
+            metrics.shutdown();
+        }
 
     }
 
     private void registerReports(){
-        for(String value : getReportYML().getFile().getKeys(false)){
-            new Report(this, UUID.fromString(value));
+        for(String value : reportYML.getFile().getKeys(false)){
+            UUID uuid;
+            try{
+                uuid = UUID.fromString(value);
+            } catch (IllegalArgumentException exception) {
+                getLogger().warning("Found corrupt report entry: " + value + " | Please remove or delete this entry. For now the plugin will skip it.");
+                continue;
+            }
+            new Report(this, uuid);
         }
     }
 

@@ -8,4 +8,4 @@ commands:
   report:
     description: Report a player
   reports:
-    description: admin command.
+    description: admin command
