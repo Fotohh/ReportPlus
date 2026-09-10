@@ -14,6 +14,8 @@ public class ReportManager{
 
     private final Map<UUID, Map<UUID, Report>> reports = new HashMap<>();
 
+
+
     public void indexReports(List<Report> reports) {
         for(Report report : reports) {
             indexReport(report);

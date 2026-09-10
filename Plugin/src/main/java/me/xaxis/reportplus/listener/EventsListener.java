@@ -3,11 +3,22 @@ package me.xaxis.reportplus.listener;
 import me.xaxis.reportplus.gui.ReportList;
 import me.xaxis.reportplus.gui.ReportOptions;
 import me.xaxis.reportplus.gui.ReportSelection;
+import me.xaxis.reportplus.player.PlayerDataManager;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 
-public class InventoryListener implements Listener {
+import java.util.UUID;
+
+public class EventsListener implements Listener {
+
+    private final PlayerDataManager playerDataManager;
+
+    public EventsListener(PlayerDataManager playerDataManager) {
+        this.playerDataManager = playerDataManager;
+    }
 
     @EventHandler
     public void InventoryClick(InventoryClickEvent event){
@@ -27,6 +38,14 @@ public class InventoryListener implements Listener {
             event.setCancelled(true);
         }
 
+    }
+
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent event) {
+        Player player = event.getPlayer();
+        String playerName = player.getName();
+        UUID playerUUID = player.getUniqueId();
+        playerDataManager.
     }
 
 }

@@ -2,10 +2,7 @@ package me.xaxis.reportplus.gui;
 
 import me.xaxis.reportplus.enums.Lang;
 import me.xaxis.reportplus.file.LangConfig;
-import me.xaxis.reportplus.reports.Report;
-import me.xaxis.reportplus.reports.ReportManager;
-import me.xaxis.reportplus.reports.ReportType;
-import me.xaxis.reportplus.reports.ReportTypeManager;
+import me.xaxis.reportplus.reports.*;
 import me.xaxis.reportplus.utils.ItemUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -23,7 +20,7 @@ public class ReportSelection implements InventoryHolder {
     private static final int GUI_SIZE = 18;
 
     private final ReportTypeManager reportTypeManager;
-    private final ReportManager reportManager;
+    private final ReportService reportService;
     private final LangConfig langConfig;
     private final Inventory inventory;
     private final String targetName, reporterName;
@@ -32,14 +29,14 @@ public class ReportSelection implements InventoryHolder {
     public ReportSelection(
             LangConfig langConfig,
             ReportTypeManager reportTypeManager,
-            ReportManager reportManager,
+            ReportService reportService,
             String targetName,
             String reporterName,
             UUID targetUUID,
             UUID reporterUUID)
     {
         this.reportTypeManager = reportTypeManager;
-        this.reportManager = reportManager;
+        this.reportService = reportService;
         this.langConfig = langConfig;
         this.targetName = targetName;
         this.reporterName = reporterName;
@@ -75,14 +72,14 @@ public class ReportSelection implements InventoryHolder {
     public void onClick(InventoryClickEvent event){
         if(!(event.getWhoClicked() instanceof Player player)) return;
         if(event.getCurrentItem() == null || event.getCurrentItem().getType() == Material.AIR) return;
+        if(!player.getUniqueId().equals(reporterUUID)) return;
         if(event.getRawSlot() == GUI_SIZE - 1){
             player.closeInventory();
             return;
         }
         for(ReportType type : reportTypeManager.getReportTypes()) {
             if(event.getRawSlot() != type.slot()) continue;
-            Report report = new Report(targetUUID, targetName, reporterUUID, reporterName, type.id());
-            reportManager.addReport(report);
+            reportService.createReport(targetUUID, targetName, reporterUUID, reporterName, type);
             player.closeInventory();
             //todo send message
             //todo send alert

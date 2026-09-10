@@ -3,7 +3,7 @@ package me.xaxis.reportplus.commands;
 import me.xaxis.reportplus.enums.Perms;
 import me.xaxis.reportplus.file.LangConfig;
 import me.xaxis.reportplus.gui.ReportSelection;
-import me.xaxis.reportplus.reports.ReportManager;
+import me.xaxis.reportplus.reports.ReportService;
 import me.xaxis.reportplus.reports.ReportTypeManager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -17,11 +17,11 @@ import java.util.UUID;
 public class ReportCommand implements CommandExecutor {
 
     private final ReportTypeManager reportTypeManager;
-    private final ReportManager reportManager;
+    private final ReportService reportService;
     private final LangConfig langConfig;
 
-    public ReportCommand(ReportTypeManager reportTypeManager, ReportManager reportManager, LangConfig langConfig) {
-        this.reportManager = reportManager;
+    public ReportCommand(ReportTypeManager reportTypeManager, ReportService reportService, LangConfig langConfig) {
+        this.reportService = reportService;
         this.reportTypeManager = reportTypeManager;
         this.langConfig = langConfig;
     }
@@ -48,13 +48,16 @@ public class ReportCommand implements CommandExecutor {
                 return true;
             }
 
+            targetName = target.getName();
+
             UUID targetUUID = target.getUniqueId();
 
             if(targetUUID.equals(player.getUniqueId())){
                 //todo message can't report self
                 return true;
             }
-            ReportSelection selection = new ReportSelection(langConfig, reportTypeManager, reportManager, targetName, player.getName(), targetUUID, player.getUniqueId());
+            ReportSelection selection = new ReportSelection(langConfig, reportTypeManager, reportService, targetName, player.getName(), targetUUID, player.getUniqueId());
+
             selection.openGUI(player);
 
         } else {

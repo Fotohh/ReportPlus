@@ -4,8 +4,11 @@ import me.xaxis.reportplus.commands.ReportCommand;
 import me.xaxis.reportplus.commands.Reports;
 import me.xaxis.reportplus.commands.ReportsTabCompleter;
 import me.xaxis.reportplus.file.LangConfig;
-import me.xaxis.reportplus.listener.InventoryListener;
+import me.xaxis.reportplus.listener.EventsListener;
+import me.xaxis.reportplus.player.PlayerDataManager;
+import me.xaxis.reportplus.player.PlayerDataYML;
 import me.xaxis.reportplus.reports.ReportManager;
+import me.xaxis.reportplus.reports.ReportService;
 import me.xaxis.reportplus.reports.ReportTypeManager;
 import me.xaxis.reportplus.reports.ReportYML;
 import org.bukkit.Bukkit;
@@ -22,8 +25,11 @@ public final class Main extends JavaPlugin {
     private ReportYML reportYML;
     private ReportManager reportManager;
     private ReportTypeManager reportTypeManager;
+    private PlayerDataManager playerDataManager;
+    private PlayerDataYML playerDataYML;
     private LangConfig langConfig;
     private Metrics metrics;
+    private ReportService reportService;
 
     public LangConfig getLangConfig() {
         return langConfig;
@@ -85,22 +91,33 @@ public final class Main extends JavaPlugin {
         ReportYML initReportYML = new ReportYML(getDataFolder().toPath(), getLogger());
         try {
             initReportYML.load();
-
         } catch (IOException | InvalidConfigurationException e) {
-            getLogger().log(Level.SEVERE, "Failed to create Reports.yml!", e);
+            getLogger().log(Level.SEVERE, "Failed to initialize Reports.yml!", e);
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
 
+        PlayerDataYML initPlayerDataYML = new PlayerDataYML(getDataFolder().toPath(), getLogger());
+        try {
+            initPlayerDataYML.load();
+        } catch (IOException | InvalidConfigurationException e) {
+            getLogger().log(Level.SEVERE, "Failed to initialize player_data.yml", e);
+            Bukkit.getPluginManager().disablePlugin(this);
+            return;
+        }
+
+        playerDataYML = initPlayerDataYML;
+        playerDataManager = new PlayerDataManager(playerDataYML);
         reportTypeManager = initReportTypeManager;
         reportYML = initReportYML;
         reportManager = new ReportManager(reportYML);
         reportManager.indexReports(reportYML.loadReports());
         langConfig = new LangConfig(this);
         metrics = new Metrics(this, 20599);
-        getServer().getPluginManager().registerEvents(new InventoryListener(), this);
-        getCommand("report").setExecutor(new ReportCommand(reportTypeManager, reportManager, langConfig));
-        new Reports(this);
+        reportService = new ReportService(reportManager);
+        getServer().getPluginManager().registerEvents(new EventsListener(playerDataManager), this);
+        getCommand("report").setExecutor(new ReportCommand(reportTypeManager, reportService, langConfig));
+        getCommand("reports").setExecutor(new Reports(reportManager, playerDataManager));
         getCommand("reports").setTabCompleter(new ReportsTabCompleter());
     }
 
@@ -116,6 +133,14 @@ public final class Main extends JavaPlugin {
         }
         if(metrics != null) {
             metrics.shutdown();
+        }
+
+        if(playerDataYML != null) {
+            try {
+                playerDataYML.save();
+            } catch (IOException e) {
+                getLogger().log(Level.SEVERE, "Failed to save player_data.yml", e);
+            }
         }
 
     }
