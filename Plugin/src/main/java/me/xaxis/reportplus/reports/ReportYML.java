@@ -65,8 +65,12 @@ public final class ReportYML {
         }
 
         if(repaired) {
-            save();
-            repaired = false;
+            try {
+                save();
+                repaired = false;
+            } catch (IOException e) {
+                logger.log(Level.SEVERE,"Failed to save Reports.yml", e);
+            }
         }
 
         return List.copyOf(reports);
@@ -208,12 +212,8 @@ public final class ReportYML {
         yml.set(reportId.toString(), null);
     }
 
-    public void save() {
-        try {
-            yml.save(file.toFile());
-        } catch (IOException e) {
-            logger.log(Level.SEVERE, "Unable to save Reports.yml", e);
-        }
+    public void save() throws IOException {
+        yml.save(file.toFile());
     }
 
     private static final class MalformedReportException extends Exception {

@@ -5,14 +5,13 @@ import me.xaxis.reportplus.commands.Reports;
 import me.xaxis.reportplus.commands.ReportsTabCompleter;
 import me.xaxis.reportplus.file.LangConfig;
 import me.xaxis.reportplus.listeners.OnInventoryClick;
-import me.xaxis.reportplus.reports.Report;
+import me.xaxis.reportplus.reports.ReportManager;
 import me.xaxis.reportplus.reports.ReportYML;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
-import java.util.UUID;
 import java.util.logging.Level;
 
 public final class Main extends JavaPlugin {
@@ -20,8 +19,17 @@ public final class Main extends JavaPlugin {
     private static final int CONFIG_VERSION = 2;
 
     private ReportYML reportYML;
+    private ReportManager reportManager;
     private LangConfig langConfig;
     private Metrics metrics;
+
+    public LangConfig getLangConfig() {
+        return langConfig;
+    }
+
+    public ReportManager getReportManager() {
+        return reportManager;
+    }
 
     @Override
     public void onEnable() {
@@ -59,14 +67,15 @@ public final class Main extends JavaPlugin {
             initReportYML.load();
 
         } catch (IOException | InvalidConfigurationException e) {
-            getLogger().log(Level.SEVERE, "Failed to create reports.yml!", e);
+            getLogger().log(Level.SEVERE, "Failed to create Reports.yml!", e);
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
 
         reportYML = initReportYML;
+        reportManager = new ReportManager(reportYML);
+        reportManager.indexReports(reportYML.loadReports());
         langConfig = new LangConfig(this);
-        registerReports();
         metrics = new Metrics(this, 20599);
         new ReportCommand(this);
         new Reports(this);
@@ -74,41 +83,20 @@ public final class Main extends JavaPlugin {
         getCommand("reports").setTabCompleter(new ReportsTabCompleter());
     }
 
-    public LangConfig getLangConfig() {
-        return langConfig;
-    }
-
     @Override
     public void onDisable() {
 
-        if(getReportYML() != null) {
+        if(reportYML != null) {
             try {
-                getReportYML().save();
+                reportYML.save();
             } catch (IOException e) {
-                getLogger().log(Level.SEVERE, "Failed to save reports.yml", e);
+                getLogger().log(Level.SEVERE, "Failed to save Reports.yml", e);
             }
         }
         if(metrics != null) {
             metrics.shutdown();
         }
 
-    }
-
-    private void registerReports(){
-        for(String value : reportYML.getFile().getKeys(false)){
-            UUID uuid;
-            try{
-                uuid = UUID.fromString(value);
-            } catch (IllegalArgumentException exception) {
-                getLogger().warning("Found corrupt report entry: " + value + " | Please remove or delete this entry. For now the plugin will skip it.");
-                continue;
-            }
-            new Report(this, uuid);
-        }
-    }
-
-    public ReportYML getReportYML() {
-        return reportYML;
     }
 
 }
