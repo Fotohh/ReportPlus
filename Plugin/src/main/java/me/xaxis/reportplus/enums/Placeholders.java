@@ -1,6 +1,6 @@
 package me.xaxis.reportplus.enums;
 
-public enum PH {
+public enum Placeholders {
     REPORT_ID("%report_id%"),
     REPORTER("%player_reporter%"),
     REPORTED("%reported_player%"),
@@ -13,18 +13,24 @@ public enum PH {
     PLAYER("%player%"),
     ;
 
-    private final String placeholder;
+    private final String value;
 
-    PH(String placeholder) {
-        this.placeholder = placeholder;
+    Placeholders(String value) {
+        this.value = value;
     }
 
-    public String getPlaceholder() {
-        return placeholder;
+    public String getValue() {
+        return value;
+    }
+
+    public static String replace(String string, Placeholders placeholder, String value) {
+        String message;
+        message = string.replace(placeholder.value, value);
+        return message;
     }
 
     @Override
     public String toString() {
-        return placeholder;
+        return value;
     }
 }

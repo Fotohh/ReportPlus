@@ -49,7 +49,7 @@ public class ReportManager{
     }
 
     private void indexReport(Report report) {
-        reports.computeIfAbsent(report.getPlayerUUID(),
+        reports.computeIfAbsent(report.getTargetUUID(),
         _ -> new HashMap<>()).put(report.getReportUUID(), report);
     }
 

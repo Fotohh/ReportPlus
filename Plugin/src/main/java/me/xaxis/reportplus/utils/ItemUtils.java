@@ -4,9 +4,7 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ItemUtils extends ItemStack{
 
@@ -17,17 +15,14 @@ public class ItemUtils extends ItemStack{
         itemMeta = getItemMeta();
     }
 
-    public ItemUtils lore(String... lore){
-        if(lore == null || lore.length == 0) return this;
-        List<String> l = Arrays.stream(lore)
-                .map(Utils::chat)
-                .collect(Collectors.toList());
-        itemMeta.setLore(l);
+    public ItemUtils lore(List<String> lore){
+        if(lore == null || lore.isEmpty()) return this;
+        itemMeta.setLore(lore.stream().map(Utils::chat).toList());
         return this;
     }
 
-    public ItemUtils setTitle(String s, boolean val){
-        if(val) {
+    public ItemUtils setTitle(String s, boolean colorCoded){
+        if(colorCoded) {
             itemMeta.setDisplayName(Utils.chat(s));
         }else {
             itemMeta.setDisplayName(s);

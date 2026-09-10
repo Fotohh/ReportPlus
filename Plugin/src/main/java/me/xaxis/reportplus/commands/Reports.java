@@ -7,7 +7,6 @@ import me.xaxis.reportplus.enums.ReportState;
 import me.xaxis.reportplus.gui.ReportList;
 import me.xaxis.reportplus.reports.Report;
 import me.xaxis.reportplus.reports.ReportManager;
-import me.xaxis.reportplus.utils.Utils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;

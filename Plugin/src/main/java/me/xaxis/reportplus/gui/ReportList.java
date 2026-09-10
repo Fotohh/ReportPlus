@@ -3,12 +3,11 @@ package me.xaxis.reportplus.gui;
 import com.github.fotohh.itemutil.ItemBuilder;
 import me.xaxis.reportplus.Main;
 import me.xaxis.reportplus.enums.Lang;
-import me.xaxis.reportplus.enums.PH;
+import me.xaxis.reportplus.enums.Placeholders;
 import me.xaxis.reportplus.enums.ReportState;
 import me.xaxis.reportplus.reports.Report;
 import me.xaxis.reportplus.reports.ReportManager;
 import me.xaxis.reportplus.utils.ItemUtils;
-import me.xaxis.reportplus.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
@@ -61,7 +60,7 @@ public class ReportList implements InventoryHolder {
                 if (report.getState() == ReportState.RESOLVED && filterResolved) continue;
                 if (report.getState() == ReportState.OPEN && !filterResolved) continue;
             }
-            Player target = Bukkit.getPlayer(report.getPlayerUUID());
+            Player target = Bukkit.getPlayer(report.getTargetUUID());
             if(target == null) continue;
             PlayerProfile profile = target.getPlayerProfile();
             ItemUtils item = new ItemUtils(Material.PLAYER_HEAD);
@@ -72,11 +71,11 @@ public class ReportList implements InventoryHolder {
                             "&7Date: &6" + date,
                             "&7Report State: &6" + report.getState().name())*/
             String[] list = Utils.getSL(Lang.REPORT_LIST_ITEM_PLAYER_LORE, Map.of(
-                    PH.REPORT_TYPE.toString(), report.getReportTypeId(),
-                    PH.REPORTER.toString(), report.getPlayerName(),
-                    PH.REPORTED.toString(), report.getTargetName(),
-                    PH.TIMESTAMP.toString(), date.toString(),
-                    PH.REPORT_STATE.toString(), report.getState().toString()));
+                    Placeholders.REPORT_TYPE.toString(), report.getReportTypeId(),
+                    Placeholders.REPORTER.toString(), report.getTargetName(),
+                    Placeholders.REPORTED.toString(), report.getTargetName(),
+                    Placeholders.TIMESTAMP.toString(), date.toString(),
+                    Placeholders.REPORT_STATE.toString(), report.getState().toString()));
             item.lore(list)
                     .setTitle(report.getReportUUID().toString(), false)
                     .build();
@@ -142,7 +141,7 @@ public class ReportList implements InventoryHolder {
     private ItemStack createPageNumber() {
         ItemStack item = new ItemStack(Material.PAPER);
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(Utils.get(Lang.GUI_LIST_ITEM_CURRENT_PAGE, Map.of(PH.CURRENT_PAGE.toString(), String.valueOf(currentPage), PH.TOTAL_PAGES.toString(), String.valueOf(getTotalPages()))));
+        meta.setDisplayName(Utils.get(Lang.GUI_LIST_ITEM_CURRENT_PAGE, Map.of(Placeholders.CURRENT_PAGE.toString(), String.valueOf(currentPage), Placeholders.TOTAL_PAGES.toString(), String.valueOf(getTotalPages()))));
         item.setItemMeta(meta);
         return item;
     }

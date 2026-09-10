@@ -6,6 +6,7 @@ import me.xaxis.reportplus.commands.ReportsTabCompleter;
 import me.xaxis.reportplus.file.LangConfig;
 import me.xaxis.reportplus.listeners.OnInventoryClick;
 import me.xaxis.reportplus.reports.ReportManager;
+import me.xaxis.reportplus.reports.ReportTypeManager;
 import me.xaxis.reportplus.reports.ReportYML;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -20,11 +21,16 @@ public final class Main extends JavaPlugin {
 
     private ReportYML reportYML;
     private ReportManager reportManager;
+    private ReportTypeManager reportTypeManager;
     private LangConfig langConfig;
     private Metrics metrics;
 
     public LangConfig getLangConfig() {
         return langConfig;
+    }
+
+    public ReportTypeManager getReportTypeManager() {
+        return reportTypeManager;
     }
 
     public ReportManager getReportManager() {
@@ -62,6 +68,20 @@ public final class Main extends JavaPlugin {
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
+
+        ReportTypeManager initReportTypeManager = new ReportTypeManager(getConfig(), getLogger());
+
+        if(!initReportTypeManager.init()){
+            Bukkit.getPluginManager().disablePlugin(this);
+            return;
+        }
+
+        if(!initReportTypeManager.indexReportTypes()) {
+            getLogger().severe("No report types were indexed. Please make sure you add at least one report type then restart the server.");
+            Bukkit.getPluginManager().disablePlugin(this);
+            return;
+        }
+
         ReportYML initReportYML = new ReportYML(getDataFolder().toPath(), getLogger());
         try {
             initReportYML.load();
@@ -72,12 +92,13 @@ public final class Main extends JavaPlugin {
             return;
         }
 
+        reportTypeManager = initReportTypeManager;
         reportYML = initReportYML;
         reportManager = new ReportManager(reportYML);
         reportManager.indexReports(reportYML.loadReports());
         langConfig = new LangConfig(this);
         metrics = new Metrics(this, 20599);
-        new ReportCommand(this);
+        getCommand("report").setExecutor(new ReportCommand());
         new Reports(this);
         new OnInventoryClick(this);
         getCommand("reports").setTabCompleter(new ReportsTabCompleter());

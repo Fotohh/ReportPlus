@@ -197,8 +197,8 @@ public final class ReportYML {
             section = yml.createSection(id);
         }
 
-        section.set(PLAYER_UUID, report.getPlayerUUID().toString());
-        section.set(PLAYER_NAME, report.getPlayerName());
+        section.set(PLAYER_UUID, report.getTargetUUID().toString());
+        section.set(PLAYER_NAME, report.getTargetName());
 
         section.set(REPORTER_UUID, report.getReporterUUID().toString());
         section.set(REPORTER_NAME, report.getReporterName());

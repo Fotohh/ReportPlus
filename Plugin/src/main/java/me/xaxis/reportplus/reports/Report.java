@@ -6,50 +6,50 @@ import java.util.UUID;
 
 public class Report {
 
-    private final UUID playerUUID;
+    private final UUID targetUUID;
     private final UUID reporterUUID;
     private final String reportTypeId;
     private final long timestamp;
     private ReportState reportState;
     private final UUID reportUUID;
-    private final String playerName;
+    private final String targetName;
     private final String reporterName;
 
-    public Report(UUID playerUUID, String playerName, UUID reporterUUID, String reporterName, String reportTypeId) {
+    public Report(UUID targetUUID, String targetName, UUID reporterUUID, String reporterName, String reportTypeId) {
         this(
-            playerUUID,
+            targetUUID,
             UUID.randomUUID(),
             reporterUUID,
             System.currentTimeMillis(),
             reportTypeId,
             ReportState.OPEN,
-            playerName,
+            targetName,
             reporterName
         );
     }
 
     public Report(
-            UUID playerUUID,
+            UUID targetUUID,
             UUID reportUUID,
             UUID reporterUUID,
             long timestamp,
             String reportTypeId,
             ReportState reportState,
-            String playerName,
+            String targetName,
             String reporterName)
     {
         this.reportState = reportState;
         this.timestamp = timestamp;
         this.reportTypeId = reportTypeId;
         this.reportUUID = reportUUID;
-        this.playerUUID = playerUUID;
+        this.targetUUID = targetUUID;
         this.reporterUUID = reporterUUID;
-        this.playerName = playerName;
+        this.targetName = targetName;
         this.reporterName = reporterName;
     }
 
-    public String getPlayerName() {
-        return playerName;
+    public String getTargetName() {
+        return targetName;
     }
 
     public String getReporterName() {
@@ -64,8 +64,8 @@ public class Report {
         return reportUUID;
     }
 
-    public UUID getPlayerUUID() {
-        return playerUUID;
+    public UUID getTargetUUID() {
+        return targetUUID;
     }
 
     public long getTimestamp() {

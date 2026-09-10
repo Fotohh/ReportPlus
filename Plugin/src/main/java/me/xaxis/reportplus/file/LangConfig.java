@@ -9,6 +9,8 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class LangConfig {
     private final Main plugin;
@@ -72,13 +74,24 @@ public class LangConfig {
     }
 
     public String getString(Lang path, Object... placeholders) {
-        FileConfiguration config = getConfig();
-        String message = config.getString(path.getPath(), path.getDefaultValue().toString());
+        String message = fileConfiguration.getString(path.getPath(), path.getDefaultValue().toString());
 
         if (placeholders != null && placeholders.length > 0) {
             message = String.format(message, placeholders);
         }
 
         return ChatColor.translateAlternateColorCodes('&', message);
+    }
+
+    public List<String> getStringList(Lang path) {
+        List<String> list = fileConfiguration.getStringList(path.getPath());
+        if(list.isEmpty()) {
+            try {
+                list = (List<String>) path.getDefaultValue();
+            } catch (Exception e) {
+                return new ArrayList<>();
+            }
+        }
+        return list;
     }
 }

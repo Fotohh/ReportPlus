@@ -1,41 +1,42 @@
 package me.xaxis.reportplus.gui;
 
-import com.github.fotohh.itemutil.ItemBuilder;
 import me.xaxis.reportplus.Main;
 import me.xaxis.reportplus.enums.Lang;
 import me.xaxis.reportplus.enums.Perms;
+import me.xaxis.reportplus.enums.Placeholders;
+import me.xaxis.reportplus.file.LangConfig;
 import me.xaxis.reportplus.reports.Report;
+import me.xaxis.reportplus.reports.ReportManager;
+import me.xaxis.reportplus.reports.ReportType;
+import me.xaxis.reportplus.reports.ReportTypeManager;
 import me.xaxis.reportplus.utils.ItemUtils;
 import me.xaxis.reportplus.utils.Utils;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
-import java.util.Date;
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
-public class ReportSelection extends Utils implements InventoryHolder  {
+public class ReportSelection implements InventoryHolder  {
 
-    public static String GUI_TITLE = "Report Selection";
+    private static final String GUI_TITLE = "Report Selection";
+
+    private final ReportTypeManager reportTypeManager;
+    private final ReportManager reportManager;
+    private final LangConfig langConfig;
 
     private final Inventory i;
-    private final UUID player;
+    private final UUID reporterUUID;
     private final String title;
     private final Main plugin;
     private final int size;
-    private final UUID uuid;
-    private final UUID target;
+    private final UUID targetUUID;
+    private final String targetName, reporterName;
 
     public int getSize() {
         return size;
@@ -45,23 +46,31 @@ public class ReportSelection extends Utils implements InventoryHolder  {
         return title;
     }
 
-    public UUID getUuid() {
-        return uuid;
+    public UUID getReporterUUID() {
+        return reporterUUID;
     }
 
-    public ReportSelection(Main plugin, Player player, UUID target){
-        super(plugin);
-        uuid = player.getUniqueId();
-        this.target = target;
-        this.player = player.getUniqueId();
+    public ReportSelection(
+            Main plugin,
+            UUID reporterUUID,
+            UUID targetUUID,
+            String targetName,
+            String reporterName,
+            LangConfig langConfig,
+            ReportTypeManager reportTypeManager,
+            ReportManager reportManager)
+    {
+        this.reportTypeManager = reportTypeManager;
+        this.reportManager = reportManager;
+        this.langConfig = langConfig;
+        this.targetUUID = targetUUID;
+        this.reporterUUID = reporterUUID;
         this.title = GUI_TITLE;
+        this.targetName = targetName;
+        this.reporterName = reporterName;
         size = 18;
         i = Bukkit.createInventory(this, size, Utils.chat(title));
         this.plugin = plugin;
-    }
-
-    public UUID getTarget() {
-        return target;
     }
 
     public void openGUI(Player player){
@@ -74,13 +83,13 @@ public class ReportSelection extends Utils implements InventoryHolder  {
     }
 
     public void createItems() {
-        for(String key : plugin.getConfig().getConfigurationSection("REPORT_TYPE").getKeys(false)){
-            getGUI().addItem(parseReport(plugin.getConfig().getConfigurationSection("REPORT_TYPE").getConfigurationSection(key)));
+        for(ReportType type : reportTypeManager.getReportTypes()) {
+            getGUI().addItem(new ItemUtils(type.material()).setTitle(type.displayName(), true).lore(type.lore()).build());
         }
 
         getGUI().setItem(size - 1, new ItemUtils(Material.BARRIER)
-            .setTitle(Utils.get(Lang.GUI_SELECTION_ITEM_CANCEL), true)
-            .lore(Utils.get(Lang.GUI_SELECTION_ITEM_CANCEL_LORE))
+            .setTitle(langConfig.getString(Lang.GUI_SELECTION_ITEM_CANCEL), true)
+            .lore(langConfig.getStringList(Lang.GUI_SELECTION_ITEM_CANCEL_LORE))
             .build()
         );
     }
@@ -88,15 +97,10 @@ public class ReportSelection extends Utils implements InventoryHolder  {
     public void reportAlert(String target, String reporter, String type, String timestamp){
         Bukkit.getOnlinePlayers().stream()
                 .filter(player -> player.hasPermission(Perms.REPORT_ALERT.getPermission())
-                        && plugin.getConfig().getBoolean("report-list.toggle." + player.getUniqueId()))
-                .forEach(player -> message(player,Lang.REPORT_ALERT,target,reporter,type,timestamp));
-    }
-
-    private ItemStack parseReport(ConfigurationSection section){
-        Material material = Material.getMaterial(section.getString("MATERIAL"));
-        String displayName = section.getString("DISPLAY_NAME");
-        List<String> lore = section.getStringList("LORE").stream().map(Utils::chat).toList();
-        return new ItemBuilder(material).withTitle(displayName).withLore(lore.toArray(new String[0])).build();
+                        && plugin.getConfig().getBoolean("report-list.toggle." + player.getUniqueId(), true))
+                .forEach(player -> {
+                    //todo report alert
+                });
     }
 
     @Override
@@ -106,31 +110,24 @@ public class ReportSelection extends Utils implements InventoryHolder  {
 
     public void onClick(InventoryClickEvent event){
 
+        if(!event.getInventory().equals(event.getWhoClicked().getOpenInventory().getTopInventory())) return;
         Player player = (Player) event.getWhoClicked();
         if(event.getCurrentItem() == null || event.getCurrentItem().getType() == Material.AIR) return;
-        Material material = event.getCurrentItem().getType();
-
-        OfflinePlayer target = Bukkit.getPlayer(getTarget());
-
-        if(target == null) return;
-
+        if(!event.getCurrentItem().hasItemMeta()) return;
+        ItemMeta itemMeta = event.getCurrentItem().getItemMeta();
+        if(itemMeta == null) return;
+        if(!itemMeta.hasDisplayName()) return;
         if(event.getRawSlot() == size - 1){
             player.closeInventory();
+            return;
+        }
+        for(ReportType type : reportTypeManager.getReportTypes()) {
+            if(event.getRawSlot() != type.slot()) continue;
+            Report report = new Report(targetUUID, targetName, reporterUUID, reporterName, type.id());
+            player.sendMessage(String.format(langConfig.getString(Lang.SUCCESSFUL_REPORT), targetName, type.id()));
+            reportAlert(targetName, reporterName, type.id(), report.getTargetName());
+            break;
         }
 
-        ConfigurationSection sec = plugin.getConfig().getConfigurationSection("REPORT_TYPE");
-        for(String s : sec.getKeys(false)){
-            ConfigurationSection a = sec.getConfigurationSection(s);
-            Material m = Material.getMaterial(a.getString("MATERIAL"));
-            if(material != m) continue;
-            try {
-                Report report = new Report(plugin, target.getUniqueId(), target.getName(), player.getUniqueId(), s);
-                player.closeInventory();
-                message(player, Lang.SUCCESSFUL_REPORT, target.getName(), s);
-                reportAlert(target.getName(), player.getName(),s, new Date(report.getTimestamp()).toString());
-            } catch (IOException e) {
-                throw new RuntimeException("Unable to register report.", e);
-            }
-        }
     }
 }

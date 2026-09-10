@@ -5,9 +5,7 @@ import me.xaxis.reportplus.enums.Lang;
 import me.xaxis.reportplus.reports.Report;
 import me.xaxis.reportplus.reports.ReportManager;
 import me.xaxis.reportplus.utils.ItemUtils;
-import me.xaxis.reportplus.utils.Utils;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -17,8 +15,6 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 public class ReportOptions implements InventoryHolder {
