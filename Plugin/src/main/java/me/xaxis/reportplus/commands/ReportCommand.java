@@ -1,7 +1,10 @@
 package me.xaxis.reportplus.commands;
 
 import me.xaxis.reportplus.enums.Perms;
+import me.xaxis.reportplus.file.LangConfig;
 import me.xaxis.reportplus.gui.ReportSelection;
+import me.xaxis.reportplus.reports.ReportManager;
+import me.xaxis.reportplus.reports.ReportTypeManager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -9,10 +12,18 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.UUID;
+
 public class ReportCommand implements CommandExecutor {
 
-    public ReportCommand() {
+    private final ReportTypeManager reportTypeManager;
+    private final ReportManager reportManager;
+    private final LangConfig langConfig;
 
+    public ReportCommand(ReportTypeManager reportTypeManager, ReportManager reportManager, LangConfig langConfig) {
+        this.reportManager = reportManager;
+        this.reportTypeManager = reportTypeManager;
+        this.langConfig = langConfig;
     }
 
     @Override
@@ -37,13 +48,14 @@ public class ReportCommand implements CommandExecutor {
                 return true;
             }
 
-            if(target.getUniqueId().equals(player.getUniqueId())){
+            UUID targetUUID = target.getUniqueId();
+
+            if(targetUUID.equals(player.getUniqueId())){
                 //todo message can't report self
                 return true;
             }
-
-            ReportSelection reportSelection = new ReportSelection(plugin, player, target.getUniqueId());
-            reportSelection.openGUI(player);
+            ReportSelection selection = new ReportSelection(langConfig, reportTypeManager, reportManager, targetName, player.getName(), targetUUID, player.getUniqueId());
+            selection.openGUI(player);
 
         } else {
             //todo message invalid usage

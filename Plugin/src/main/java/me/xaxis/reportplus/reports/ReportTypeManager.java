@@ -1,13 +1,10 @@
 package me.xaxis.reportplus.reports;
 
-import me.xaxis.reportplus.utils.Utils;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class ReportTypeManager {
@@ -43,6 +40,7 @@ public class ReportTypeManager {
     }
 
     public boolean indexReportTypes() {
+        Set<Integer> slots = new HashSet<>();
         ConfigurationSection section = config.getConfigurationSection("report-types");
         for(String keys : section.getKeys(false)) {
             if(!section.isConfigurationSection(keys)) {
@@ -80,9 +78,22 @@ public class ReportTypeManager {
 
             if(!reportType.isInt(SLOT)) {
                 logger.warning("Entry type'" + SLOT + "' in " + keys + " in report-types in config.yml is either not set or is not a valid int. Please fix this. Skipping the entry.");
+                continue;
             }
 
             int slot = reportType.getInt(SLOT);
+
+            if(slots.contains(slot)) {
+                logger.warning("Entry type'" + SLOT + "' in " + keys + " contains duplicated slot '" + slot + "' Please fix this. Skipping the entry.");
+                continue;
+            }
+
+            if(slot >= 17 || slot < 0) {
+                logger.warning("Incorrect slot bounds for " + keys + ". Expected bounds 0 <= x < 17, instead got " + slot + ". Please fix this. Skipping the entry.");
+                continue;
+            }
+
+            slots.add(slot);
 
             reportTypes.put(reportType.getName(), new ReportType(reportType.getName(), material, displayName, lore, slot));
         }

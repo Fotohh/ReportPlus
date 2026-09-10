@@ -4,7 +4,7 @@ import me.xaxis.reportplus.commands.ReportCommand;
 import me.xaxis.reportplus.commands.Reports;
 import me.xaxis.reportplus.commands.ReportsTabCompleter;
 import me.xaxis.reportplus.file.LangConfig;
-import me.xaxis.reportplus.listeners.OnInventoryClick;
+import me.xaxis.reportplus.listener.InventoryListener;
 import me.xaxis.reportplus.reports.ReportManager;
 import me.xaxis.reportplus.reports.ReportTypeManager;
 import me.xaxis.reportplus.reports.ReportYML;
@@ -98,9 +98,9 @@ public final class Main extends JavaPlugin {
         reportManager.indexReports(reportYML.loadReports());
         langConfig = new LangConfig(this);
         metrics = new Metrics(this, 20599);
-        getCommand("report").setExecutor(new ReportCommand());
+        getServer().getPluginManager().registerEvents(new InventoryListener(), this);
+        getCommand("report").setExecutor(new ReportCommand(reportTypeManager, reportManager, langConfig));
         new Reports(this);
-        new OnInventoryClick(this);
         getCommand("reports").setTabCompleter(new ReportsTabCompleter());
     }
 

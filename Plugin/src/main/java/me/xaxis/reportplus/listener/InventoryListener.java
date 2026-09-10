@@ -1,6 +1,5 @@
-package me.xaxis.reportplus.listeners;
+package me.xaxis.reportplus.listener;
 
-import me.xaxis.reportplus.Main;
 import me.xaxis.reportplus.gui.ReportList;
 import me.xaxis.reportplus.gui.ReportOptions;
 import me.xaxis.reportplus.gui.ReportSelection;
@@ -8,11 +7,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 
-public class OnInventoryClick implements Listener {
-
-    public OnInventoryClick(Main plugin) {
-        plugin.getServer().getPluginManager().registerEvents(this, plugin);
-    }
+public class InventoryListener implements Listener {
 
     @EventHandler
     public void InventoryClick(InventoryClickEvent event){
