@@ -6,31 +6,22 @@ import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.IOException;
-import java.nio.channels.FileChannel;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static java.nio.file.StandardCopyOption.ATOMIC_MOVE;
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
-import static java.nio.file.StandardOpenOption.WRITE;
 
 public final class ReportYML {
 
-    private static final int SCHEMA_VERSION = 1;
-
-    private static final String CONFIG_VERSION = "config-version";
-
-    private static final String PLAYER_UUID = "player-uuid";
-    private static final String PLAYER_NAME = "player-name";
-    private static final String REPORTER_UUID = "reporter-uuid";
-    private static final String REPORTER_NAME = "reporter-name";
-    private static final String REPORT_TYPE = "report-type";
+    private static final String PLAYER_UUID = "player_UUID";
+    private static final String PLAYER_NAME = "player_name";
+    private static final String REPORTER_UUID = "reporter_UUID";
+    private static final String REPORTER_NAME = "reporter_name";
+    private static final String REPORT_TYPE = "report_type";
     private static final String TIMESTAMP = "timestamp";
-    private static final String REPORT_STATE = "report-state";
+    private static final String REPORT_STATE = "report_state";
 
     private final Path file;
     private final Logger logger;
@@ -43,43 +34,8 @@ public final class ReportYML {
     }
 
     public void load() throws IOException, InvalidConfigurationException {
-        boolean created = createIfMissing();
-
+        if(!Files.exists(file)) Files.createFile(file);
         yml.load(file.toFile());
-
-        if (created) {
-            yml.set(CONFIG_VERSION, SCHEMA_VERSION);
-            save();
-        }
-
-        validateSchema();
-    }
-
-    private boolean createIfMissing() throws IOException {
-        try {
-            Files.createFile(file);
-            return true;
-        } catch (FileAlreadyExistsException ignored) {
-            return false;
-        }
-    }
-
-    private void validateSchema() throws InvalidConfigurationException {
-        if (!yml.isInt(CONFIG_VERSION)) {
-            throw new InvalidConfigurationException(
-                    "Reports.yml is missing a valid integer '" +
-                            CONFIG_VERSION + "'."
-            );
-        }
-
-        int version = yml.getInt(CONFIG_VERSION);
-
-        if (version != SCHEMA_VERSION) {
-            throw new InvalidConfigurationException(
-                    "Unsupported Reports.yml schema version " +
-                            version + "; expected " + SCHEMA_VERSION + "."
-            );
-        }
     }
 
     public List<Report> loadReports() {
@@ -87,9 +43,6 @@ public final class ReportYML {
         List<Report> reports = new ArrayList<>();
 
         for (String id : yml.getKeys(false)) {
-            if (CONFIG_VERSION.equals(id)) {
-                continue;
-            }
 
             ConfigurationSection section =
                     yml.getConfigurationSection(id);
@@ -111,15 +64,22 @@ public final class ReportYML {
             }
         }
 
+        if(repaired) {
+            save();
+            repaired = false;
+        }
+
         return List.copyOf(reports);
     }
+
+    private boolean repaired = false;
 
     private Report parseReport(
             String id,
             ConfigurationSection section
     ) throws MalformedReportException {
 
-        UUID reportUUID = parseUUID(id, "report UUID");
+        UUID reportUUID = parseUUID(id, "report_UUID");
 
         UUID playerUUID =
                 parseUUID(requiredString(section, PLAYER_UUID), PLAYER_UUID);
@@ -129,9 +89,13 @@ public final class ReportYML {
 
         String playerName =
                 requiredString(section, PLAYER_NAME);
-
+        if(!section.isSet(REPORTER_NAME)) {
+            section.set(REPORTER_NAME, "Unknown");
+            repaired = true;
+        }
         String reporterName =
                 requiredString(section, REPORTER_NAME);
+
 
         String reportType =
                 requiredString(section, REPORT_TYPE);
@@ -244,8 +208,12 @@ public final class ReportYML {
         yml.set(reportId.toString(), null);
     }
 
-    public void save() throws IOException {
-        yml.save(file.toFile());
+    public void save() {
+        try {
+            yml.save(file.toFile());
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, "Unable to save Reports.yml", e);
+        }
     }
 
     private static final class MalformedReportException extends Exception {

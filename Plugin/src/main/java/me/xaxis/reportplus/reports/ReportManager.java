@@ -1,55 +1,71 @@
 package me.xaxis.reportplus.reports;
 
-import me.xaxis.reportplus.Main;
 import me.xaxis.reportplus.enums.ReportState;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public class ReportManager{
 
-    private static final HashMap<UUID, Report> reportUUIDMap = new HashMap<>();
+    private final ReportYML reportYML;
 
-    public static HashMap<UUID, Report> getReportUUIDMap() {
-        return reportUUIDMap;
+    public ReportManager(ReportYML reportYML) {
+        this.reportYML = reportYML;
     }
 
-    public static Report getReport(UUID uuid){
-        return reportUUIDMap.get(uuid);
-    }
+    private final Map<UUID, Map<UUID, Report>> reports = new HashMap<>();
 
-    public static boolean containsReport(UUID playerUUID){
-        for(Report report : reportUUIDMap.values()){
-            if(report.getPlayerUUID().equals(playerUUID)){
-                return true;
-            }
+    public void indexReports(List<Report> reports) {
+        for(Report report : reports) {
+            indexReport(report);
         }
-        return false;
     }
 
-    public static Report getUnresolvedReportFromPlayerUUID(UUID playerUUID) {
-        Optional<Report> report = reportUUIDMap.values().stream().filter(r -> r.getPlayerUUID().equals(playerUUID) && r.getState() != ReportState.RESOLVED).findFirst();
-        return report.orElse(null);
+    public List<Report> getReports(UUID playerUUID){
+        return reports.getOrDefault(playerUUID, Map.of()).values().stream().toList();
     }
 
-    public static void addReport(Report report, UUID uuid){
-        reportUUIDMap.put(uuid, report);
+    public List<Report> getOpenReports(UUID playerUUID) {
+        List<Report> reports = getReports(playerUUID);
+        return reports.stream().filter(report -> report.getReportState() == ReportState.OPEN).toList();
     }
 
-    public static void removeReport(UUID playerUUID, Main plugin) {
-        Optional<Report> report =  reportUUIDMap.values().stream().filter(r -> r.getPlayerUUID().equals(playerUUID)).findFirst();
-        report.ifPresent(value -> deleteReport(value.getReportUUID(), plugin));
-    }
-
-    public static void deleteReport(UUID uuid, Main plugin) {
-        reportUUIDMap.remove(uuid);
-        try {
-            plugin.getReportYML().set(uuid.toString(), null);
-            plugin.getReportYML().save();
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to delete entry",e);
+    public boolean resolveReport(UUID playerUUID, UUID reportUUID) {
+        if(!reports.containsKey(playerUUID)) {
+            return false;
         }
+        var map = reports.get(playerUUID);
+        if(!map.containsKey(reportUUID)) {
+            return false;
+        }
+        Report report = map.get(reportUUID);
+        report.resolve();
+        reportYML.saveReport(report);
+        return true;
+    }
+
+    public void addReport(Report report){
+        indexReport(report);
+        reportYML.saveReport(report);
+    }
+
+    private void indexReport(Report report) {
+        reports.computeIfAbsent(report.getPlayerUUID(),
+        _ -> new HashMap<>()).put(report.getReportUUID(), report);
+    }
+
+    private boolean removeReport(UUID playerUUID, UUID reportUUID) {
+        if(!reports.containsKey(playerUUID)) return false;
+        var map = reports.get(playerUUID);
+        if (map.remove(reportUUID) == null) return false;
+        if(map.isEmpty()) reports.remove(playerUUID);
+        return true;
+    }
+
+    public boolean deleteReport(UUID playerUUID, UUID reportUUID) {
+        if(!removeReport(playerUUID, reportUUID)) {
+            return false;
+        }
+        reportYML.deleteReport(reportUUID);
+        return true;
     }
 }

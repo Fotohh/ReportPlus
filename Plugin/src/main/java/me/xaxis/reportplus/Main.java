@@ -54,7 +54,7 @@ public final class Main extends JavaPlugin {
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
-        ReportYML initReportYML = new ReportYML(getDataFolder(), getLogger());
+        ReportYML initReportYML = new ReportYML(getDataFolder().toPath(), getLogger());
         try {
             initReportYML.load();
 
@@ -63,10 +63,7 @@ public final class Main extends JavaPlugin {
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
-        if(!initReportYML.schemaValidation()){
-            Bukkit.getPluginManager().disablePlugin(this);
-            return;
-        }
+
         reportYML = initReportYML;
         langConfig = new LangConfig(this);
         registerReports();
