@@ -1,5 +1,6 @@
 package me.xaxis.reportplus.commands;
 
+import me.xaxis.reportplus.enums.Lang;
 import me.xaxis.reportplus.enums.Perms;
 import me.xaxis.reportplus.file.LangConfig;
 import me.xaxis.reportplus.gui.ReportSelection;
@@ -14,55 +15,81 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
-public class ReportCommand implements CommandExecutor {
+public final class ReportCommand implements CommandExecutor {
 
     private final ReportTypeManager reportTypeManager;
     private final ReportService reportService;
     private final LangConfig langConfig;
 
-    public ReportCommand(ReportTypeManager reportTypeManager, ReportService reportService, LangConfig langConfig) {
-        this.reportService = reportService;
+    public ReportCommand(
+            ReportTypeManager reportTypeManager,
+            ReportService reportService,
+            LangConfig langConfig
+    ) {
         this.reportTypeManager = reportTypeManager;
+        this.reportService = reportService;
         this.langConfig = langConfig;
     }
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String string, @NotNull String[] args) {
+    public boolean onCommand(
+            @NotNull CommandSender sender,
+            @NotNull Command command,
+            @NotNull String label,
+            @NotNull String[] args
+    ) {
 
-        if(!(sender instanceof Player player)) {
-            //todo message sender not player
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage(
+                    langConfig.getString(Lang.SENDER_NOT_PLAYER)
+            );
             return true;
         }
-        if(!player.hasPermission(Perms.PLAYER_REPORT.getPermission())){
-            //todo message no perms
+
+        if (!player.hasPermission(Perms.PLAYER_REPORT.getPermission())) {
+            player.sendMessage(
+                    langConfig.getString(Lang.NO_PERMISSION)
+            );
             return true;
         }
-        if (args.length == 1) {
 
-            String targetName = args[0];
-
-            Player target = Bukkit.getPlayer(targetName);
-
-            if(target == null) {
-                //todo message target doesn't exist
-                return true;
-            }
-
-            targetName = target.getName();
-
-            UUID targetUUID = target.getUniqueId();
-
-            if(targetUUID.equals(player.getUniqueId())){
-                //todo message can't report self
-                return true;
-            }
-            ReportSelection selection = new ReportSelection(langConfig, reportTypeManager, reportService, targetName, player.getName(), targetUUID, player.getUniqueId());
-
-            selection.openGUI(player);
-
-        } else {
-            //todo message invalid usage
+        if (args.length != 1) {
+            player.sendMessage(
+                    langConfig.getString(Lang.INVALID_REPORT_USAGE)
+            );
+            return true;
         }
+
+        Player target = Bukkit.getPlayerExact(args[0]);
+
+        if (target == null) {
+            player.sendMessage(
+                    langConfig.getString(Lang.INVALID_PLAYER)
+            );
+            return true;
+        }
+
+        UUID targetUUID = target.getUniqueId();
+
+        if (targetUUID.equals(player.getUniqueId())) {
+            player.sendMessage(
+                    langConfig.getString(Lang.CANNOT_REPORT_SELF)
+            );
+            return true;
+        }
+
+        ReportSelection selection = new ReportSelection(
+                langConfig,
+                reportTypeManager,
+                reportService,
+                target.getName(),
+                player.getName(),
+                targetUUID,
+                player.getUniqueId()
+        );
+
+        selection.openGUI(player);
+
         return true;
     }
 }

@@ -25,6 +25,7 @@ public final class ReportOptions implements InventoryHolder {
     private static final int CLOSE_SLOT = 45;
     private static final int BACK_SLOT = 53;
 
+    private final ReportList parent;
     private final ReportManager reportManager;
     private final LangConfig langConfig;
     private final UUID viewerUUID;
@@ -35,12 +36,14 @@ public final class ReportOptions implements InventoryHolder {
             ReportManager reportManager,
             LangConfig langConfig,
             UUID viewerUUID,
-            Report report
+            Report report,
+            ReportList parent
     ) {
         this.reportManager = reportManager;
         this.langConfig = langConfig;
         this.viewerUUID = viewerUUID;
         this.report = report;
+        this.parent = parent;
 
         inventory = Bukkit.createInventory(
                 this,
@@ -163,9 +166,6 @@ public final class ReportOptions implements InventoryHolder {
     }
 
     private void openReportList(Player player) {
-        new ReportList(
-                reportManager,
-                langConfig
-        ).openGUI(player);
+        parent.openGUI(player);
     }
 }

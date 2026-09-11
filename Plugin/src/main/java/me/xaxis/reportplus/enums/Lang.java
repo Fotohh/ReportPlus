@@ -47,6 +47,16 @@ public enum Lang {
             "&cUnable to create that report."
     ),
 
+    INVALID_REPORTS_USAGE(
+            "Lang.CommandMessages.invalid_reports_usage",
+            "&4Invalid Usage! Usage: /reports [toggle|delete <player>|resolve <player>]"
+    ),
+
+    MULTIPLE_REPORTS_FOUND(
+            "Lang.PlayerMessages.multiple_reports_found",
+            "&eMultiple reports were found for that player. Select the report from the report list."
+    ),
+
     ;
 
     public Object getDefaultValue(){

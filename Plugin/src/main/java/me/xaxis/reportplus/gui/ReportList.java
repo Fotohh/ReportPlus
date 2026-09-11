@@ -20,6 +20,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 public final class ReportList implements InventoryHolder {
 
@@ -37,17 +38,54 @@ public final class ReportList implements InventoryHolder {
     private final LangConfig langConfig;
     private final Inventory inventory;
 
+    /*
+     * null = show reports from every player
+     */
+    private final UUID targetUUIDFilter;
+
+    /*
+     * true = this list is specifically for resolving reports,
+     * so only OPEN reports can ever be shown.
+     */
+    private final boolean openOnly;
+
     private List<Report> displayedReports = List.of();
 
     private int currentPage = 1;
     private Filter filter = Filter.ALL;
 
+    /*
+     * Normal /reports list.
+     */
     public ReportList(
             ReportManager reportManager,
             LangConfig langConfig
     ) {
+        this(
+                reportManager,
+                langConfig,
+                null,
+                false
+        );
+    }
+
+    /*
+     * Filtered report list.
+     */
+    public ReportList(
+            ReportManager reportManager,
+            LangConfig langConfig,
+            UUID targetUUIDFilter,
+            boolean openOnly
+    ) {
         this.reportManager = reportManager;
         this.langConfig = langConfig;
+        this.targetUUIDFilter = targetUUIDFilter;
+        this.openOnly = openOnly;
+
+        if (openOnly) {
+            filter = Filter.OPEN;
+        }
 
         inventory = Bukkit.createInventory(
                 this,
@@ -70,8 +108,29 @@ public final class ReportList implements InventoryHolder {
     private void refreshReports() {
         displayedReports = reportManager.getAllReports()
                 .stream()
-                .filter(this::matchesFilter)
-                .sorted(Comparator.comparingLong(Report::getTimestamp).reversed())
+
+                // If a target UUID was provided, only show their reports.
+                .filter(report ->
+                        targetUUIDFilter == null
+                                || report.getTargetUUID().equals(targetUUIDFilter)
+                )
+
+                // Resolve mode is permanently limited to open reports.
+                .filter(report -> {
+                    if (openOnly) {
+                        return report.getReportState() == ReportState.OPEN;
+                    }
+
+                    return matchesFilter(report);
+                })
+
+                // Newest reports first.
+                .sorted(
+                        Comparator
+                                .comparingLong(Report::getTimestamp)
+                                .reversed()
+                )
+
                 .toList();
 
         int totalPages = getTotalPages();
@@ -88,15 +147,19 @@ public final class ReportList implements InventoryHolder {
     private boolean matchesFilter(Report report) {
         return switch (filter) {
             case ALL -> true;
-            case OPEN -> report.getReportState() == ReportState.OPEN;
-            case RESOLVED -> report.getReportState() == ReportState.RESOLVED;
+            case OPEN ->
+                    report.getReportState() == ReportState.OPEN;
+            case RESOLVED ->
+                    report.getReportState() == ReportState.RESOLVED;
         };
     }
 
     private void render() {
         inventory.clear();
 
-        int startIndex = (currentPage - 1) * REPORTS_PER_PAGE;
+        int startIndex =
+                (currentPage - 1) * REPORTS_PER_PAGE;
+
         int endIndex = Math.min(
                 startIndex + REPORTS_PER_PAGE,
                 displayedReports.size()
@@ -107,7 +170,11 @@ public final class ReportList implements InventoryHolder {
         for (int index = startIndex; index < endIndex; index++) {
             Report report = displayedReports.get(index);
 
-            inventory.setItem(slot, createReportItem(report));
+            inventory.setItem(
+                    slot,
+                    createReportItem(report)
+            );
+
             slot++;
         }
 
@@ -118,13 +185,24 @@ public final class ReportList implements InventoryHolder {
         Date date = new Date(report.getTimestamp());
 
         List<String> lore = langConfig
-                .getStringList(Lang.REPORT_LIST_ITEM_PLAYER_LORE)
+                .getStringList(
+                        Lang.REPORT_LIST_ITEM_PLAYER_LORE
+                )
                 .stream()
-                .map(line -> replaceReportPlaceholders(line, report, date))
+                .map(line ->
+                        replaceReportPlaceholders(
+                                line,
+                                report,
+                                date
+                        )
+                )
                 .toList();
 
         return new ItemUtils(Material.PLAYER_HEAD)
-                .setTitle(report.getTargetName(), true)
+                .setTitle(
+                        report.getTargetName(),
+                        true
+                )
                 .lore(lore)
                 .build();
     }
@@ -162,39 +240,47 @@ public final class ReportList implements InventoryHolder {
                 PREVIOUS_PAGE_SLOT,
                 createButton(
                         Material.ARROW,
-                        langConfig.getString(Lang.GUI_LIST_ITEM_PREVIOUS_PAGE)
+                        langConfig.getString(
+                                Lang.GUI_LIST_ITEM_PREVIOUS_PAGE
+                        )
                 )
         );
 
-        inventory.setItem(
-                OPEN_FILTER_SLOT,
-                createFilterButton(
-                        langConfig.getString(
-                                Lang.REPORT_LIST_ITEM_FILTER_OUT_RESOLVED
-                        ),
-                        filter == Filter.OPEN
-                )
-        );
+        /*
+         * Resolve mode is locked to OPEN reports,
+         * so filter buttons don't make sense there.
+         */
+        if (!openOnly) {
+            inventory.setItem(
+                    OPEN_FILTER_SLOT,
+                    createFilterButton(
+                            langConfig.getString(
+                                    Lang.REPORT_LIST_ITEM_FILTER_OUT_RESOLVED
+                            ),
+                            filter == Filter.OPEN
+                    )
+            );
 
-        inventory.setItem(
-                RESOLVED_FILTER_SLOT,
-                createFilterButton(
-                        langConfig.getString(
-                                Lang.REPORT_LIST_ITEM_FILTER_OUT_OPEN
-                        ),
-                        filter == Filter.RESOLVED
-                )
-        );
+            inventory.setItem(
+                    RESOLVED_FILTER_SLOT,
+                    createFilterButton(
+                            langConfig.getString(
+                                    Lang.REPORT_LIST_ITEM_FILTER_OUT_OPEN
+                            ),
+                            filter == Filter.RESOLVED
+                    )
+            );
 
-        inventory.setItem(
-                ALL_FILTER_SLOT,
-                createFilterButton(
-                        langConfig.getString(
-                                Lang.REPORT_LIST_ITEM_SHOW_ALL
-                        ),
-                        filter == Filter.ALL
-                )
-        );
+            inventory.setItem(
+                    ALL_FILTER_SLOT,
+                    createFilterButton(
+                            langConfig.getString(
+                                    Lang.REPORT_LIST_ITEM_SHOW_ALL
+                            ),
+                            filter == Filter.ALL
+                    )
+            );
+        }
 
         inventory.setItem(
                 PAGE_NUMBER_SLOT,
@@ -205,21 +291,30 @@ public final class ReportList implements InventoryHolder {
                 NEXT_PAGE_SLOT,
                 createButton(
                         Material.ARROW,
-                        langConfig.getString(Lang.REPORT_LIST_ITEM_NEXT_PAGE)
+                        langConfig.getString(
+                                Lang.REPORT_LIST_ITEM_NEXT_PAGE
+                        )
                 )
         );
     }
 
-    private ItemStack createButton(Material material, String title) {
+    private ItemStack createButton(
+            Material material,
+            String title
+    ) {
         return new ItemUtils(material)
                 .setTitle(title, true)
                 .build();
     }
 
-    private ItemStack createFilterButton(String title, boolean active) {
-        ItemStack item = new ItemUtils(Material.BOOK)
-                .setTitle(title, true)
-                .build();
+    private ItemStack createFilterButton(
+            String title,
+            boolean active
+    ) {
+        ItemStack item =
+                new ItemUtils(Material.BOOK)
+                        .setTitle(title, true)
+                        .build();
 
         ItemMeta meta = item.getItemMeta();
 
@@ -233,7 +328,9 @@ public final class ReportList implements InventoryHolder {
 
     private ItemStack createPageNumber() {
         String title = langConfig
-                .getString(Lang.GUI_LIST_ITEM_CURRENT_PAGE)
+                .getString(
+                        Lang.GUI_LIST_ITEM_CURRENT_PAGE
+                )
                 .replace(
                         Placeholders.CURRENT_PAGE.toString(),
                         String.valueOf(currentPage)
@@ -252,7 +349,8 @@ public final class ReportList implements InventoryHolder {
         return Math.max(
                 1,
                 (int) Math.ceil(
-                        (double) displayedReports.size() / REPORTS_PER_PAGE
+                        (double) displayedReports.size()
+                                / REPORTS_PER_PAGE
                 )
         );
     }
@@ -265,46 +363,13 @@ public final class ReportList implements InventoryHolder {
         int slot = event.getRawSlot();
 
         switch (slot) {
+
             case PREVIOUS_PAGE_SLOT -> {
                 if (currentPage > 1) {
                     currentPage--;
                     render();
                 }
 
-                return;
-            }
-
-            case OPEN_FILTER_SLOT -> {
-                filter = Filter.OPEN;
-                currentPage = 1;
-
-                refreshReports();
-                render();
-
-                return;
-            }
-
-            case RESOLVED_FILTER_SLOT -> {
-                filter = Filter.RESOLVED;
-                currentPage = 1;
-
-                refreshReports();
-                render();
-
-                return;
-            }
-
-            case ALL_FILTER_SLOT -> {
-                filter = Filter.ALL;
-                currentPage = 1;
-
-                refreshReports();
-                render();
-
-                return;
-            }
-
-            case PAGE_NUMBER_SLOT -> {
                 return;
             }
 
@@ -316,6 +381,52 @@ public final class ReportList implements InventoryHolder {
 
                 return;
             }
+
+            case PAGE_NUMBER_SLOT -> {
+                return;
+            }
+
+            case OPEN_FILTER_SLOT -> {
+                if (openOnly) {
+                    return;
+                }
+
+                filter = Filter.OPEN;
+                currentPage = 1;
+
+                refreshReports();
+                render();
+
+                return;
+            }
+
+            case RESOLVED_FILTER_SLOT -> {
+                if (openOnly) {
+                    return;
+                }
+
+                filter = Filter.RESOLVED;
+                currentPage = 1;
+
+                refreshReports();
+                render();
+
+                return;
+            }
+
+            case ALL_FILTER_SLOT -> {
+                if (openOnly) {
+                    return;
+                }
+
+                filter = Filter.ALL;
+                currentPage = 1;
+
+                refreshReports();
+                render();
+
+                return;
+            }
         }
 
         if (slot < 0 || slot >= REPORTS_PER_PAGE) {
@@ -323,19 +434,22 @@ public final class ReportList implements InventoryHolder {
         }
 
         int reportIndex =
-                ((currentPage - 1) * REPORTS_PER_PAGE) + slot;
+                ((currentPage - 1) * REPORTS_PER_PAGE)
+                        + slot;
 
         if (reportIndex >= displayedReports.size()) {
             return;
         }
 
-        Report report = displayedReports.get(reportIndex);
+        Report report =
+                displayedReports.get(reportIndex);
 
         new ReportOptions(
                 reportManager,
                 langConfig,
                 player.getUniqueId(),
-                report
+                report,
+                this
         ).openGUI(player);
     }
 
