@@ -73,6 +73,25 @@ public final class Main extends JavaPlugin {
             return;
         }
 
+        LangConfig initLangConfig = new LangConfig(
+                getDataFolder().toPath(),
+                getLogger()
+        );
+
+        try {
+            initLangConfig.init();
+        } catch (IOException | InvalidConfigurationException e) {
+            getLogger().log(
+                    Level.SEVERE,
+                    "Failed to initialize Lang.yml!",
+                    e
+            );
+
+            Bukkit.getPluginManager().disablePlugin(this);
+            return;
+        }
+        langConfig = initLangConfig;
+
         ReportTypeManager initReportTypeManager = new ReportTypeManager(getConfig(), getLogger());
 
         if(!initReportTypeManager.init()){
@@ -113,7 +132,6 @@ public final class Main extends JavaPlugin {
         playerDataManager = new PlayerDataManager(playerDataYML, getLogger());
         playerDataManager.migrateFromReports(reports);
         reportManager.indexReports(reports);
-        langConfig = new LangConfig(this);
         metrics = new Metrics(this, 20599);
         reportService = new ReportService(reportManager);
         getServer().getPluginManager().registerEvents(new EventsListener(playerDataManager), this);
@@ -141,6 +159,18 @@ public final class Main extends JavaPlugin {
                 playerDataYML.save();
             } catch (IOException e) {
                 getLogger().log(Level.SEVERE, "Failed to save player_data.yml", e);
+            }
+        }
+
+        if (langConfig != null) {
+            try {
+                langConfig.save();
+            } catch (IOException e) {
+                getLogger().log(
+                        Level.SEVERE,
+                        "Failed to save Lang.yml!",
+                        e
+                );
             }
         }
 
