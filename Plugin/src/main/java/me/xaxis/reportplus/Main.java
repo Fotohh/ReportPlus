@@ -14,6 +14,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 import java.util.logging.Level;
 
 public final class Main extends JavaPlugin {
@@ -132,6 +133,16 @@ public final class Main extends JavaPlugin {
         playerDataManager = new PlayerDataManager(playerDataYML, getLogger());
         playerDataManager.migrateFromReports(reports);
         reportManager.indexReports(reports);
+        for (var player : Bukkit.getOnlinePlayers()) {
+            UUID uuid = player.getUniqueId();
+            String name = player.getName();
+
+            if (!playerDataManager.hasPlayerData(uuid)) {
+                playerDataManager.addPlayer(uuid, name);
+            } else {
+                playerDataManager.indexPlayer(uuid, name);
+            }
+        }
         metrics = new Metrics(this, 20599);
         reportService = new ReportService(reportManager);
         getServer().getPluginManager().registerEvents(new EventsListener(playerDataManager), this);
