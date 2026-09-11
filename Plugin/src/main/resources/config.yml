@@ -1,5 +1,5 @@
 config-version: 2
-
+report-cooldown-seconds: 30
 report-types:
   bhop:
     material: 'IRON_BOOTS'

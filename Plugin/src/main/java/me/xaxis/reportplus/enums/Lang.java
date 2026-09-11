@@ -37,6 +37,15 @@ public enum Lang {
     GUI_LIST_ITEM_CURRENT_PAGE("GUI.report_list.item.current_page.name", "&7Current Page: &6%current_page%/%total_pages%"),
     GUI_SELECTION_ITEM_CANCEL("GUI.report_selection.item.cancel.name", "&cCancel"),
     GUI_SELECTION_ITEM_CANCEL_LORE("GUI.report_selection.item.cancel.lore", "&7Click to close the inventory"),
+    REPORT_COOLDOWN(
+            "Lang.PlayerMessages.report_cooldown",
+            "&cYou must wait %s second(s) before reporting another player!"
+    ),
+
+    REPORT_FAILED(
+            "Lang.PlayerMessages.report_failed",
+            "&cUnable to create that report."
+    ),
 
     ;
 

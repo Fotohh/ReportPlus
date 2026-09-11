@@ -79,10 +79,63 @@ public class ReportSelection implements InventoryHolder {
         }
         for(ReportType type : reportTypeManager.getReportTypes()) {
             if(event.getRawSlot() != type.slot()) continue;
-            reportService.createReport(targetUUID, targetName, reporterUUID, reporterName, type);
-            player.closeInventory();
-            //todo send message
-            //todo send alert
+            ReportService.CreateResult result =
+                    reportService.createReport(
+                            targetUUID,
+                            targetName,
+                            reporterUUID,
+                            reporterName,
+                            type.id()
+                    );
+
+            switch (result.status()) {
+
+                case SUCCESS -> {
+                    player.sendMessage(
+                            langConfig.getString(
+                                    Lang.SUCCESSFUL_REPORT,
+                                    targetName,
+                                    type.displayName()
+                            )
+                    );
+
+                    player.closeInventory();
+                }
+
+                case COOLDOWN -> {
+                    player.sendMessage(
+                            langConfig.getString(
+                                    Lang.REPORT_COOLDOWN,
+                                    result.cooldownSeconds()
+                            )
+                    );
+
+                    player.closeInventory();
+                }
+
+                case SELF_REPORT -> {
+                    player.sendMessage(
+                            langConfig.getString(
+                                    Lang.CANNOT_REPORT_SELF
+                            )
+                    );
+
+                    player.closeInventory();
+                }
+
+                case INVALID_REPORT_TYPE,
+                     PLAYER_DATA_MISSING -> {
+
+                    player.sendMessage(
+                            langConfig.getString(
+                                    Lang.REPORT_FAILED
+                            )
+                    );
+
+                    player.closeInventory();
+                }
+            }
+
             break;
         }
 

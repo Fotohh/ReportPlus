@@ -144,7 +144,17 @@ public final class Main extends JavaPlugin {
             }
         }
         metrics = new Metrics(this, 20599);
-        reportService = new ReportService(reportManager);
+        ReportAlertService reportAlertService =
+                new ReportAlertService(
+                        playerDataManager,
+                        langConfig
+                );
+        long reportCooldownMillis =
+                getConfig().getLong(
+                        "report-cooldown-seconds",
+                        30
+                ) * 1000L;
+        reportService = new ReportService(reportManager, reportTypeManager, playerDataManager, reportAlertService, reportCooldownMillis);
         getServer().getPluginManager().registerEvents(new EventsListener(playerDataManager), this);
         getCommand("report").setExecutor(new ReportCommand(reportTypeManager, reportService, langConfig));
         getCommand("reports").setExecutor(new Reports(reportManager, playerDataManager, langConfig));

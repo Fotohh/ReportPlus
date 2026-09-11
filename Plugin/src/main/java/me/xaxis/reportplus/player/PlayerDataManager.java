@@ -23,6 +23,80 @@ public class PlayerDataManager {
 
     private final Map<String, UUID> playerNameIndex = new HashMap<>();
 
+    public Optional<Boolean> toggleReportAlerts(UUID playerUUID) {
+
+        PlayerData data = playerDataMap.get(playerUUID);
+
+        if (data == null) {
+            return Optional.empty();
+        }
+
+        boolean newValue = !data.reportAlertsToggled();
+
+        PlayerData updated = new PlayerData(
+                data.playerUUID(),
+                data.playerName(),
+                newValue,
+                data.reportCooldownUntil()
+        );
+
+        playerDataYML.savePlayerData(updated);
+
+        try {
+            playerDataYML.save();
+        } catch (IOException e) {
+            logger.log(
+                    Level.SEVERE,
+                    "Unable to save report alert preference for "
+                            + data.playerName(),
+                    e
+            );
+
+            return Optional.empty();
+        }
+
+        playerDataMap.put(playerUUID, updated);
+
+        return Optional.of(newValue);
+    }
+
+    public boolean setReportCooldownUntil(
+            UUID playerUUID,
+            long cooldownUntil
+    ) {
+        PlayerData data = playerDataMap.get(playerUUID);
+
+        if (data == null) {
+            return false;
+        }
+
+        PlayerData updated = new PlayerData(
+                data.playerUUID(),
+                data.playerName(),
+                data.reportAlertsToggled(),
+                cooldownUntil
+        );
+
+        playerDataYML.savePlayerData(updated);
+
+        try {
+            playerDataYML.save();
+        } catch (IOException e) {
+            logger.log(
+                    Level.SEVERE,
+                    "Unable to save report cooldown for "
+                            + data.playerName(),
+                    e
+            );
+
+            return false;
+        }
+
+        playerDataMap.put(playerUUID, updated);
+
+        return true;
+    }
+
     public List<String> getPlayerNames() {
         return playerDataMap.values()
                 .stream()

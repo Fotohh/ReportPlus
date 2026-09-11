@@ -1,5 +1,6 @@
 package me.xaxis.reportplus.commands;
 
+import me.xaxis.reportplus.enums.Lang;
 import me.xaxis.reportplus.enums.Perms;
 import me.xaxis.reportplus.file.LangConfig;
 import me.xaxis.reportplus.gui.ReportList;
@@ -13,6 +14,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public class Reports implements CommandExecutor {
@@ -52,7 +54,28 @@ public class Reports implements CommandExecutor {
                     return true;
                 }
 
-                //todo functionality
+                Optional<Boolean> enabled =
+                        playerDataManager.toggleReportAlerts(
+                                player.getUniqueId()
+                        );
+
+                if (enabled.isEmpty()) {
+                    return true;
+                }
+
+                if (enabled.get()) {
+                    player.sendMessage(
+                            langConfig.getString(
+                                    Lang.TOGGLED_REPORT_ON
+                            )
+                    );
+                } else {
+                    player.sendMessage(
+                            langConfig.getString(
+                                    Lang.TOGGLED_REPORT_OFF
+                            )
+                    );
+                }
 
                 return true;
 
