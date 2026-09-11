@@ -32,8 +32,7 @@ public class PlayerDataManager {
         for (var entry : playerDataMap.entrySet()) {
             if (playerNameIndex.containsKey(entry.getValue().playerName().toLowerCase(Locale.ROOT))) {
                 logger.warning("Found duplicate entry '" + entry.getValue().playerName().toLowerCase(Locale.ROOT)
-                        + "' in player name index. Removing from player data map and Skipping it.");
-                playerDataMap.remove(entry.getKey(), entry.getValue());
+                        + "' in player name index. Skipping it.");
                 continue;
             }
             playerNameIndex.put(entry.getValue().playerName().toLowerCase(Locale.ROOT), entry.getKey());
