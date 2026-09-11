@@ -107,7 +107,7 @@ public final class Main extends JavaPlugin {
         }
 
         playerDataYML = initPlayerDataYML;
-        playerDataManager = new PlayerDataManager(playerDataYML);
+        playerDataManager = new PlayerDataManager(playerDataYML, getLogger());
         reportTypeManager = initReportTypeManager;
         reportYML = initReportYML;
         reportManager = new ReportManager(reportYML);

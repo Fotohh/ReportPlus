@@ -14,10 +14,10 @@ import java.util.UUID;
 
 public class EventsListener implements Listener {
 
-    private final PlayerDataManager playerDataManager;
+    private final PlayerDataManager data;
 
     public EventsListener(PlayerDataManager playerDataManager) {
-        this.playerDataManager = playerDataManager;
+        data = playerDataManager;
     }
 
     @EventHandler
@@ -45,7 +45,11 @@ public class EventsListener implements Listener {
         Player player = event.getPlayer();
         String playerName = player.getName();
         UUID playerUUID = player.getUniqueId();
-        playerDataManager.
+        if(!data.hasPlayerData(playerUUID)) {
+            data.addPlayer(playerUUID, playerName);
+        } else {
+            data.indexPlayer(playerUUID, playerName);
+        }
     }
 
 }
