@@ -1,6 +1,8 @@
 package me.xaxis.reportplus.commands;
 
 import me.xaxis.reportplus.enums.Perms;
+import me.xaxis.reportplus.file.LangConfig;
+import me.xaxis.reportplus.gui.ReportList;
 import me.xaxis.reportplus.player.PlayerDataManager;
 import me.xaxis.reportplus.reports.Report;
 import me.xaxis.reportplus.reports.ReportManager;
@@ -17,10 +19,12 @@ public class Reports implements CommandExecutor {
 
     private final ReportManager reportManager;
     private final PlayerDataManager playerDataManager;
+    private final LangConfig langConfig;
 
-    public Reports(ReportManager reportManager, PlayerDataManager playerDataManager) {
+    public Reports(ReportManager reportManager, PlayerDataManager playerDataManager, LangConfig langConfig) {
         this.reportManager = reportManager;
         this.playerDataManager = playerDataManager;
+        this.langConfig = langConfig;
     }
 
     @Override
@@ -35,7 +39,10 @@ public class Reports implements CommandExecutor {
                 //todo message no perms
                 return true;
             }
-            //new ReportList(plugin).openGUI(player);
+            new ReportList(
+                    reportManager,
+                    langConfig
+            ).openGUI(player);
             return true;
         }
         if (strings.length == 1) {

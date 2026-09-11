@@ -1,10 +1,9 @@
 package me.xaxis.reportplus.player;
 
+import me.xaxis.reportplus.reports.Report;
+
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -118,5 +117,93 @@ public class PlayerDataManager {
         playerNameIndex.put(playerName, playerUUID);
 
         return true;
+    }
+
+    public void migrateFromReports(List<Report> reports) {
+        Map<UUID, Report> latestReportByPlayer = new HashMap<>();
+
+        for (Report report : reports) {
+            UUID playerUUID = report.getTargetUUID();
+            Report current = latestReportByPlayer.get(playerUUID);
+
+            if (current == null || report.getTimestamp() > current.getTimestamp()) {
+                latestReportByPlayer.put(playerUUID, report);
+            }
+        }
+
+        Map<UUID, PlayerData> migratedPlayers = new HashMap<>();
+        Map<String, UUID> migratedNames = new HashMap<>();
+
+        for (Report report : latestReportByPlayer.values()) {
+            UUID playerUUID = report.getTargetUUID();
+
+            if (playerDataMap.containsKey(playerUUID)) {
+                continue;
+            }
+
+            String playerName = report.getTargetName();
+            String normalizedName = playerName.toLowerCase(Locale.ROOT);
+
+            UUID existingUUID = playerNameIndex.get(normalizedName);
+
+            if (existingUUID != null && !existingUUID.equals(playerUUID)) {
+                logger.warning(
+                        "Unable to migrate historical player '" + playerName
+                                + "' (" + playerUUID + ") because the name is already indexed to "
+                                + existingUUID + ". Skipping migration."
+                );
+                continue;
+            }
+
+            UUID migratedUUID = migratedNames.get(normalizedName);
+
+            if (migratedUUID != null && !migratedUUID.equals(playerUUID)) {
+                logger.warning(
+                        "Unable to migrate historical player '" + playerName
+                                + "' (" + playerUUID + ") because another historical player "
+                                + "has the same name. Skipping migration."
+                );
+                continue;
+            }
+
+            PlayerData data = new PlayerData(
+                    playerUUID,
+                    playerName,
+                    true,
+                    0
+            );
+
+            migratedPlayers.put(playerUUID, data);
+            migratedNames.put(normalizedName, playerUUID);
+            playerDataYML.savePlayerData(data);
+        }
+
+        if (migratedPlayers.isEmpty()) {
+            return;
+        }
+
+        try {
+            playerDataYML.save();
+        } catch (IOException e) {
+            logger.log(
+                    Level.SEVERE,
+                    "Failed to save migrated player data to player_data.yml!",
+                    e
+            );
+            return;
+        }
+
+        for (PlayerData data : migratedPlayers.values()) {
+            playerDataMap.put(data.playerUUID(), data);
+            playerNameIndex.put(
+                    data.playerName().toLowerCase(Locale.ROOT),
+                    data.playerUUID()
+            );
+        }
+
+        logger.info(
+                "Migrated " + migratedPlayers.size()
+                        + " player(s) from historical report data."
+        );
     }
 }

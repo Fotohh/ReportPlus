@@ -1,220 +1,347 @@
 package me.xaxis.reportplus.gui;
 
-import com.github.fotohh.itemutil.ItemBuilder;
-import me.xaxis.reportplus.Main;
 import me.xaxis.reportplus.enums.Lang;
 import me.xaxis.reportplus.enums.Placeholders;
 import me.xaxis.reportplus.enums.ReportState;
+import me.xaxis.reportplus.file.LangConfig;
 import me.xaxis.reportplus.reports.Report;
 import me.xaxis.reportplus.reports.ReportManager;
 import me.xaxis.reportplus.utils.ItemUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.SkullMeta;
-import org.bukkit.profile.PlayerProfile;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
 
-public class ReportList implements InventoryHolder {
+public final class ReportList implements InventoryHolder {
 
-    private final List<ItemStack> items = new ArrayList<>();
-    private final int itemsPerPage;
-    private int currentPage;
-    private final Main plugin;
-    private final Inventory gui;
+    private static final int GUI_SIZE = 54;
+    private static final int REPORTS_PER_PAGE = 45;
 
-    public ReportList(Main plugin) {
-        this.plugin = plugin;
-        String title = Utils.get(Lang.REPORT_LIST_TITLE);
-        this.itemsPerPage = 45;
-        this.currentPage = 1;
-        gui = Bukkit.createInventory(this, 54, Utils.chat(title));
+    private static final int PREVIOUS_PAGE_SLOT = 45;
+    private static final int OPEN_FILTER_SLOT = 46;
+    private static final int RESOLVED_FILTER_SLOT = 47;
+    private static final int ALL_FILTER_SLOT = 48;
+    private static final int PAGE_NUMBER_SLOT = 49;
+    private static final int NEXT_PAGE_SLOT = 53;
+
+    private final ReportManager reportManager;
+    private final LangConfig langConfig;
+    private final Inventory inventory;
+
+    private List<Report> displayedReports = List.of();
+
+    private int currentPage = 1;
+    private Filter filter = Filter.ALL;
+
+    public ReportList(
+            ReportManager reportManager,
+            LangConfig langConfig
+    ) {
+        this.reportManager = reportManager;
+        this.langConfig = langConfig;
+
+        inventory = Bukkit.createInventory(
+                this,
+                GUI_SIZE,
+                langConfig.getString(Lang.REPORT_LIST_TITLE)
+        );
     }
 
-    public void openGUI(Player player){
-        createItems();
-        player.openInventory(getGUI());
-    }
-
-    public Inventory getGUI() {
-        return gui;
-    }
-
-    public void createItems() {
-        items.clear();
-
-        ConfigurationSection section = plugin.getConfig().getConfigurationSection("REPORT_TYPE");
-
-        if(section == null) return;
-
-        for(Report report : ReportManager.getReportUUIDMap().values()){
-            if(!showAll) {
-                if (report.getState() == ReportState.RESOLVED && filterResolved) continue;
-                if (report.getState() == ReportState.OPEN && !filterResolved) continue;
-            }
-            Player target = Bukkit.getPlayer(report.getTargetUUID());
-            if(target == null) continue;
-            PlayerProfile profile = target.getPlayerProfile();
-            ItemUtils item = new ItemUtils(Material.PLAYER_HEAD);
-            Date date = new Date(report.getTimestamp());
-            /*item.lore("&7Report Type: &6" + report.getReportType(),
-                            "&7Player: &6" + report.getPlayerName(),
-                            "&7Reporter: &6"+ report.getTargetName(),
-                            "&7Date: &6" + date,
-                            "&7Report State: &6" + report.getState().name())*/
-            String[] list = Utils.getSL(Lang.REPORT_LIST_ITEM_PLAYER_LORE, Map.of(
-                    Placeholders.REPORT_TYPE.toString(), report.getReportTypeId(),
-                    Placeholders.REPORTER.toString(), report.getTargetName(),
-                    Placeholders.REPORTED.toString(), report.getTargetName(),
-                    Placeholders.TIMESTAMP.toString(), date.toString(),
-                    Placeholders.REPORT_STATE.toString(), report.getState().toString()));
-            item.lore(list)
-                    .setTitle(report.getReportUUID().toString(), false)
-                    .build();
-            SkullMeta meta = (SkullMeta) item.getItemMeta();
-            meta.setOwnerProfile(profile);
-            meta.setOwningPlayer(Bukkit.getOfflinePlayer(target.getUniqueId()));
-            item.setItemMeta(meta);
-            items.add(item);
-        }
-        pagination();
-    }
-
-    public void updateGUI() {
-        gui.clear();
-        createItems();
-        pagination();
-    }
-
-    private boolean filterResolved = false;
-
-    private void pagination() {
-        int counter = 0;
-        int startIndex = (currentPage - 1) * itemsPerPage;
-        int endIndex = Math.min(startIndex + itemsPerPage, items.size());
-        for (int i = startIndex; i < endIndex; i++) {
-            gui.setItem(counter, items.get(i));
-            counter++;
-        }
-        gui.setItem(45, createPageButton(Utils.get(Lang.GUI_LIST_ITEM_PREVIOUS_PAGE)));
-
-
-        ItemBuilder filterResolvedItem = new ItemBuilder(Material.BOOK).withTitle(Utils.get(Lang.REPORT_LIST_ITEM_FILTER_OUT_RESOLVED));
-        ItemMeta filterResolvedMeta = filterResolvedItem.getItemMeta();
-        filterResolvedMeta.setEnchantmentGlintOverride(filterResolved);
-        filterResolvedItem.setItemMeta(filterResolvedMeta);
-
-        filterResolvedItem.withLore(" ");
-        gui.setItem(46, filterResolvedItem.build());
-
-        ItemBuilder filterUnresolvedItem = new ItemBuilder(Material.BOOK).withTitle(Utils.get(Lang.REPORT_LIST_ITEM_FILTER_OUT_OPEN));
-        ItemMeta filterUnresolvedMeta = filterUnresolvedItem.getItemMeta();
-        if(!filterResolved) filterUnresolvedMeta.setEnchantmentGlintOverride(true);
-        filterUnresolvedItem.setItemMeta(filterUnresolvedMeta);
-
-        filterUnresolvedItem.withLore(" ");
-        gui.setItem(47, filterUnresolvedItem.build());
-
-        ItemBuilder allReportsItem = new ItemBuilder(Material.BOOK).withTitle(Utils.get(Lang.REPORT_LIST_ITEM_SHOW_ALL)).withLore(" ").build();
-        gui.setItem(48, allReportsItem);
-
-        gui.setItem(49, createPageNumber());
-        gui.setItem(53, createPageButton(Utils.get(Lang.REPORT_LIST_ITEM_NEXT_PAGE)));
-    }
-
-    private ItemStack createPageButton(String name) {
-        ItemStack item = new ItemStack(Material.ARROW);
-        ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(Utils.chat(name));
-        item.setItemMeta(meta);
-        return item;
-    }
-
-    private ItemStack createPageNumber() {
-        ItemStack item = new ItemStack(Material.PAPER);
-        ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(Utils.get(Lang.GUI_LIST_ITEM_CURRENT_PAGE, Map.of(Placeholders.CURRENT_PAGE.toString(), String.valueOf(currentPage), Placeholders.TOTAL_PAGES.toString(), String.valueOf(getTotalPages()))));
-        item.setItemMeta(meta);
-        return item;
-    }
-
-    public int getTotalPages() {
-        return (int) Math.ceil((double) items.size() / itemsPerPage);
+    public void openGUI(Player player) {
+        refreshReports();
+        render();
+        player.openInventory(inventory);
     }
 
     @Override
     public @NotNull Inventory getInventory() {
-        return gui;
+        return inventory;
     }
 
-    private boolean showAll = true;
+    private void refreshReports() {
+        displayedReports = reportManager.getAllReports()
+                .stream()
+                .filter(this::matchesFilter)
+                .sorted(Comparator.comparingLong(Report::getTimestamp).reversed())
+                .toList();
 
+        int totalPages = getTotalPages();
 
-    public void onClick(InventoryClickEvent event){
-
-        Player player = (Player) event.getWhoClicked();
-
-        if (event.getCurrentItem() == null || event.getCurrentItem().getType() == Material.AIR || event.getCurrentItem().getItemMeta() == null) return;
-        event.setCancelled(true);
-
-        switch (event.getRawSlot()) {
-            case 45 -> {
-                if(currentPage > 1) {
-                    currentPage--;
-                    updateGUI();
-                }
-                return;
-            }
-            case 46 -> {
-                //filter resolved reports
-                filterResolved = true;
-                showAll = false;
-                currentPage = 1;
-                updateGUI();
-            }
-            case 47 -> {
-                //filter unresolved reports
-                filterResolved = false;
-                showAll = false;
-                currentPage = 1;
-                updateGUI();
-            }
-            case 49 -> {
-                return;
-            }
-            case 53 -> {
-                if(currentPage < getTotalPages()) {
-                    currentPage++;
-                    updateGUI();
-                }
-                return;
-            }
-            case 48 -> {
-                //show all reports
-                showAll = true;
-                currentPage = 1;
-                updateGUI();
-            }
+        if (currentPage > totalPages) {
+            currentPage = totalPages;
         }
 
-        UUID uuid;
+        if (currentPage < 1) {
+            currentPage = 1;
+        }
+    }
 
-        try {
-            uuid = UUID.fromString(event.getCurrentItem().getItemMeta().getDisplayName());
-        }catch (Exception e){
+    private boolean matchesFilter(Report report) {
+        return switch (filter) {
+            case ALL -> true;
+            case OPEN -> report.getReportState() == ReportState.OPEN;
+            case RESOLVED -> report.getReportState() == ReportState.RESOLVED;
+        };
+    }
+
+    private void render() {
+        inventory.clear();
+
+        int startIndex = (currentPage - 1) * REPORTS_PER_PAGE;
+        int endIndex = Math.min(
+                startIndex + REPORTS_PER_PAGE,
+                displayedReports.size()
+        );
+
+        int slot = 0;
+
+        for (int index = startIndex; index < endIndex; index++) {
+            Report report = displayedReports.get(index);
+
+            inventory.setItem(slot, createReportItem(report));
+            slot++;
+        }
+
+        createControls();
+    }
+
+    private ItemStack createReportItem(Report report) {
+        Date date = new Date(report.getTimestamp());
+
+        List<String> lore = langConfig
+                .getStringList(Lang.REPORT_LIST_ITEM_PLAYER_LORE)
+                .stream()
+                .map(line -> replaceReportPlaceholders(line, report, date))
+                .toList();
+
+        return new ItemUtils(Material.PLAYER_HEAD)
+                .setTitle(report.getTargetName(), true)
+                .lore(lore)
+                .build();
+    }
+
+    private String replaceReportPlaceholders(
+            String line,
+            Report report,
+            Date date
+    ) {
+        return line
+                .replace(
+                        Placeholders.REPORT_TYPE.toString(),
+                        report.getReportTypeId()
+                )
+                .replace(
+                        Placeholders.REPORTER.toString(),
+                        report.getReporterName()
+                )
+                .replace(
+                        Placeholders.REPORTED.toString(),
+                        report.getTargetName()
+                )
+                .replace(
+                        Placeholders.TIMESTAMP.toString(),
+                        date.toString()
+                )
+                .replace(
+                        Placeholders.REPORT_STATE.toString(),
+                        report.getReportState().name()
+                );
+    }
+
+    private void createControls() {
+        inventory.setItem(
+                PREVIOUS_PAGE_SLOT,
+                createButton(
+                        Material.ARROW,
+                        langConfig.getString(Lang.GUI_LIST_ITEM_PREVIOUS_PAGE)
+                )
+        );
+
+        inventory.setItem(
+                OPEN_FILTER_SLOT,
+                createFilterButton(
+                        langConfig.getString(
+                                Lang.REPORT_LIST_ITEM_FILTER_OUT_RESOLVED
+                        ),
+                        filter == Filter.OPEN
+                )
+        );
+
+        inventory.setItem(
+                RESOLVED_FILTER_SLOT,
+                createFilterButton(
+                        langConfig.getString(
+                                Lang.REPORT_LIST_ITEM_FILTER_OUT_OPEN
+                        ),
+                        filter == Filter.RESOLVED
+                )
+        );
+
+        inventory.setItem(
+                ALL_FILTER_SLOT,
+                createFilterButton(
+                        langConfig.getString(
+                                Lang.REPORT_LIST_ITEM_SHOW_ALL
+                        ),
+                        filter == Filter.ALL
+                )
+        );
+
+        inventory.setItem(
+                PAGE_NUMBER_SLOT,
+                createPageNumber()
+        );
+
+        inventory.setItem(
+                NEXT_PAGE_SLOT,
+                createButton(
+                        Material.ARROW,
+                        langConfig.getString(Lang.REPORT_LIST_ITEM_NEXT_PAGE)
+                )
+        );
+    }
+
+    private ItemStack createButton(Material material, String title) {
+        return new ItemUtils(material)
+                .setTitle(title, true)
+                .build();
+    }
+
+    private ItemStack createFilterButton(String title, boolean active) {
+        ItemStack item = new ItemUtils(Material.BOOK)
+                .setTitle(title, true)
+                .build();
+
+        ItemMeta meta = item.getItemMeta();
+
+        if (meta != null) {
+            meta.setEnchantmentGlintOverride(active);
+            item.setItemMeta(meta);
+        }
+
+        return item;
+    }
+
+    private ItemStack createPageNumber() {
+        String title = langConfig
+                .getString(Lang.GUI_LIST_ITEM_CURRENT_PAGE)
+                .replace(
+                        Placeholders.CURRENT_PAGE.toString(),
+                        String.valueOf(currentPage)
+                )
+                .replace(
+                        Placeholders.TOTAL_PAGES.toString(),
+                        String.valueOf(getTotalPages())
+                );
+
+        return new ItemUtils(Material.PAPER)
+                .setTitle(title, true)
+                .build();
+    }
+
+    private int getTotalPages() {
+        return Math.max(
+                1,
+                (int) Math.ceil(
+                        (double) displayedReports.size() / REPORTS_PER_PAGE
+                )
+        );
+    }
+
+    public void onClick(InventoryClickEvent event) {
+        if (!(event.getWhoClicked() instanceof Player player)) {
             return;
         }
 
-        Report report = ReportManager.getReport(uuid);
+        int slot = event.getRawSlot();
 
-        new ReportOptions(plugin, (Player) event.getWhoClicked(), report).openGUI(player);
+        switch (slot) {
+            case PREVIOUS_PAGE_SLOT -> {
+                if (currentPage > 1) {
+                    currentPage--;
+                    render();
+                }
+
+                return;
+            }
+
+            case OPEN_FILTER_SLOT -> {
+                filter = Filter.OPEN;
+                currentPage = 1;
+
+                refreshReports();
+                render();
+
+                return;
+            }
+
+            case RESOLVED_FILTER_SLOT -> {
+                filter = Filter.RESOLVED;
+                currentPage = 1;
+
+                refreshReports();
+                render();
+
+                return;
+            }
+
+            case ALL_FILTER_SLOT -> {
+                filter = Filter.ALL;
+                currentPage = 1;
+
+                refreshReports();
+                render();
+
+                return;
+            }
+
+            case PAGE_NUMBER_SLOT -> {
+                return;
+            }
+
+            case NEXT_PAGE_SLOT -> {
+                if (currentPage < getTotalPages()) {
+                    currentPage++;
+                    render();
+                }
+
+                return;
+            }
+        }
+
+        if (slot < 0 || slot >= REPORTS_PER_PAGE) {
+            return;
+        }
+
+        int reportIndex =
+                ((currentPage - 1) * REPORTS_PER_PAGE) + slot;
+
+        if (reportIndex >= displayedReports.size()) {
+            return;
+        }
+
+        Report report = displayedReports.get(reportIndex);
+
+        new ReportOptions(
+                reportManager,
+                langConfig,
+                player.getUniqueId(),
+                report
+        ).openGUI(player);
+    }
+
+    private enum Filter {
+        ALL,
+        OPEN,
+        RESOLVED
     }
 }

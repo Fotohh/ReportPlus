@@ -7,15 +7,13 @@ import me.xaxis.reportplus.file.LangConfig;
 import me.xaxis.reportplus.listener.EventsListener;
 import me.xaxis.reportplus.player.PlayerDataManager;
 import me.xaxis.reportplus.player.PlayerDataYML;
-import me.xaxis.reportplus.reports.ReportManager;
-import me.xaxis.reportplus.reports.ReportService;
-import me.xaxis.reportplus.reports.ReportTypeManager;
-import me.xaxis.reportplus.reports.ReportYML;
+import me.xaxis.reportplus.reports.*;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.logging.Level;
 
 public final class Main extends JavaPlugin {
@@ -107,17 +105,20 @@ public final class Main extends JavaPlugin {
         }
 
         playerDataYML = initPlayerDataYML;
-        playerDataManager = new PlayerDataManager(playerDataYML, getLogger());
+
         reportTypeManager = initReportTypeManager;
         reportYML = initReportYML;
         reportManager = new ReportManager(reportYML);
-        reportManager.indexReports(reportYML.loadReports());
+        List<Report> reports  = reportYML.loadReports();
+        playerDataManager = new PlayerDataManager(playerDataYML, getLogger());
+        playerDataManager.migrateFromReports(reports);
+        reportManager.indexReports(reports);
         langConfig = new LangConfig(this);
         metrics = new Metrics(this, 20599);
         reportService = new ReportService(reportManager);
         getServer().getPluginManager().registerEvents(new EventsListener(playerDataManager), this);
         getCommand("report").setExecutor(new ReportCommand(reportTypeManager, reportService, langConfig));
-        getCommand("reports").setExecutor(new Reports(reportManager, playerDataManager));
+        getCommand("reports").setExecutor(new Reports(reportManager, playerDataManager, langConfig));
         getCommand("reports").setTabCompleter(new ReportsTabCompleter());
     }
 

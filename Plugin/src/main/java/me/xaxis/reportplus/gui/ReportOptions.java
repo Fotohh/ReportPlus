@@ -1,7 +1,8 @@
 package me.xaxis.reportplus.gui;
 
-import me.xaxis.reportplus.Main;
 import me.xaxis.reportplus.enums.Lang;
+import me.xaxis.reportplus.enums.ReportState;
+import me.xaxis.reportplus.file.LangConfig;
 import me.xaxis.reportplus.reports.Report;
 import me.xaxis.reportplus.reports.ReportManager;
 import me.xaxis.reportplus.utils.ItemUtils;
@@ -11,60 +12,43 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
 import java.util.UUID;
 
-public class ReportOptions implements InventoryHolder {
+public final class ReportOptions implements InventoryHolder {
 
-    private final Inventory inventory;
-    private final Main plugin;
-    private final UUID player;
+    private static final int GUI_SIZE = 54;
+
+    private static final int DELETE_SLOT = 12;
+    private static final int RESOLVE_SLOT = 13;
+    private static final int CLOSE_SLOT = 45;
+    private static final int BACK_SLOT = 53;
+
+    private final ReportManager reportManager;
+    private final LangConfig langConfig;
+    private final UUID viewerUUID;
     private final Report report;
+    private final Inventory inventory;
 
-    public ReportOptions(Main plugin, Player player, Report report){
-        this.plugin = plugin;
-        this.player = player.getUniqueId();
-        this.report =report;
-        inventory = Bukkit.createInventory(this, 6*9, Utils.get(Lang.GUI_OPTIONS_TITLE, plugin));
-    }
+    public ReportOptions(
+            ReportManager reportManager,
+            LangConfig langConfig,
+            UUID viewerUUID,
+            Report report
+    ) {
+        this.reportManager = reportManager;
+        this.langConfig = langConfig;
+        this.viewerUUID = viewerUUID;
+        this.report = report;
 
-    public Report getReport() {
-        return report;
-    }
+        inventory = Bukkit.createInventory(
+                this,
+                GUI_SIZE,
+                langConfig.getString(Lang.GUI_OPTIONS_TITLE)
+        );
 
-    public UUID getPlayer() {
-        return player;
-    }
-
-    public void openGUI(Player player) {
         createItems();
-        player.openInventory(getGUI());
-    }
-
-    public Inventory getGUI() {
-        return inventory;
-    }
-
-    public void createItems() {
-        ItemStack barrier = new ItemUtils(Material.BARRIER)
-                .setTitle(Utils.get(Lang.GUI_OPTIONS_CLOSE, plugin), true)
-                .build();
-        ItemStack redConcrete = new ItemUtils(Material.RED_CONCRETE)
-                .setTitle(Utils.get(Lang.GUI_OPTIONS_DELETE, plugin), true)
-                .build();
-        ItemStack blackConcrete = new ItemUtils(Material.BLACK_CONCRETE)
-                .setTitle(Utils.get(Lang.GUI_OPTIONS_RESOLVE, plugin), true)
-                .build();
-        ItemStack arrow = new ItemUtils(Material.ARROW)
-                .setTitle(Utils.get(Lang.GUI_ITEM_GO_BACK, plugin), true)
-                .build();
-        getGUI().setItem(12, redConcrete);
-        getGUI().setItem(13, blackConcrete);
-        getGUI().setItem(45, barrier);
-        getGUI().setItem(53, arrow);
     }
 
     @Override
@@ -72,38 +56,116 @@ public class ReportOptions implements InventoryHolder {
         return inventory;
     }
 
-    public void onClick(InventoryClickEvent event){
+    public void openGUI(Player player) {
+        if (!player.getUniqueId().equals(viewerUUID)) {
+            return;
+        }
 
-        Player player = (Player) event.getWhoClicked();
+        player.openInventory(inventory);
+    }
 
-        if(event.getCurrentItem() == null) return;
+    private void createItems() {
+        inventory.setItem(
+                DELETE_SLOT,
+                new ItemUtils(Material.RED_CONCRETE)
+                        .setTitle(
+                                langConfig.getString(Lang.GUI_OPTIONS_DELETE),
+                                true
+                        )
+                        .build()
+        );
 
-        switch (event.getCurrentItem().getType()) {
-            case AIR -> {
-            }
-            case BARRIER -> player.closeInventory();
-            case ARROW -> {
-                player.closeInventory();
-                new ReportList(plugin).openGUI(player);
-            }
-            case RED_CONCRETE -> {
-                player.closeInventory();
-                ReportManager.deleteReport(getReport().getReportUUID(), plugin);
-                new ReportList(plugin).openGUI(player);
-                player.sendMessage(Utils.getP(Lang.REMOVED_REPORT, plugin));
-            }
-            case BLACK_CONCRETE -> {
-                player.closeInventory();
-                try {
-                    getReport().resolve();
-                } catch (IOException e) {
-                    throw new RuntimeException("Failed to save config",e);
+        if (report.getReportState() == ReportState.OPEN) {
+            inventory.setItem(
+                    RESOLVE_SLOT,
+                    new ItemUtils(Material.BLACK_CONCRETE)
+                            .setTitle(
+                                    langConfig.getString(Lang.GUI_OPTIONS_RESOLVE),
+                                    true
+                            )
+                            .build()
+            );
+        }
+
+        inventory.setItem(
+                CLOSE_SLOT,
+                new ItemUtils(Material.BARRIER)
+                        .setTitle(
+                                langConfig.getString(Lang.GUI_OPTIONS_CLOSE),
+                                true
+                        )
+                        .build()
+        );
+
+        inventory.setItem(
+                BACK_SLOT,
+                new ItemUtils(Material.ARROW)
+                        .setTitle(
+                                langConfig.getString(Lang.GUI_ITEM_GO_BACK),
+                                true
+                        )
+                        .build()
+        );
+    }
+
+    public void onClick(InventoryClickEvent event) {
+        if (!(event.getWhoClicked() instanceof Player player)) {
+            return;
+        }
+
+        if (!player.getUniqueId().equals(viewerUUID)) {
+            return;
+        }
+
+        switch (event.getRawSlot()) {
+            case CLOSE_SLOT -> player.closeInventory();
+
+            case BACK_SLOT -> openReportList(player);
+
+            case DELETE_SLOT -> {
+                boolean deleted = reportManager.deleteReport(
+                        report.getReportUUID(),
+                        report.getTargetUUID()
+                );
+
+                if (!deleted) {
+                    return;
                 }
-                new ReportList(plugin).openGUI(player);
-                player.sendMessage(Utils.getP(Lang.SET_REPORT_AS_RESOLVED, plugin));
 
+                player.sendMessage(
+                        langConfig.getString(Lang.REMOVED_REPORT)
+                );
+
+                openReportList(player);
+            }
+
+            case RESOLVE_SLOT -> {
+                if (report.getReportState() != ReportState.OPEN) {
+                    return;
+                }
+
+                boolean resolved = reportManager.resolveReport(
+                        report.getTargetUUID(),
+                        report.getReportUUID()
+                );
+
+                if (!resolved) {
+                    return;
+                }
+
+                player.sendMessage(
+                        langConfig.getString(Lang.SET_REPORT_AS_RESOLVED)
+                );
+
+                openReportList(player);
             }
         }
     }
 
+    private void openReportList(Player player) {
+        new ReportList(
+                reportManager,
+                langConfig
+        ).openGUI(player);
+    }
 }

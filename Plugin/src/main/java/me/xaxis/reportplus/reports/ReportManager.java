@@ -14,8 +14,6 @@ public class ReportManager{
 
     private final Map<UUID, Map<UUID, Report>> reports = new HashMap<>();
 
-
-
     public void indexReports(List<Report> reports) {
         for(Report report : reports) {
             indexReport(report);
@@ -29,6 +27,13 @@ public class ReportManager{
     public List<Report> getOpenReports(UUID playerUUID) {
         List<Report> reports = getReports(playerUUID);
         return reports.stream().filter(report -> report.getReportState() == ReportState.OPEN).toList();
+    }
+
+    public List<Report> getAllReports() {
+        return reports.values()
+                .stream()
+                .flatMap(playerReports -> playerReports.values().stream())
+                .toList();
     }
 
     public boolean resolveReport(UUID playerUUID, UUID reportUUID) {
