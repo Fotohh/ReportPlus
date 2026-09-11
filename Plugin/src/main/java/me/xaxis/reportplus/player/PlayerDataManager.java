@@ -23,6 +23,13 @@ public class PlayerDataManager {
 
     private final Map<String, UUID> playerNameIndex = new HashMap<>();
 
+    public List<String> getPlayerNames() {
+        return playerDataMap.values()
+                .stream()
+                .map(PlayerData::playerName)
+                .toList();
+    }
+
     public UUID getPlayerUUID(String playerName) {
         return playerNameIndex.get(playerName.toLowerCase(Locale.ROOT));
     }

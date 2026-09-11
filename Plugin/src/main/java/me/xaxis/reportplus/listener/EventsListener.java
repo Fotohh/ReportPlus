@@ -12,44 +12,43 @@ import org.bukkit.event.player.PlayerJoinEvent;
 
 import java.util.UUID;
 
-public class EventsListener implements Listener {
+public final class EventsListener implements Listener {
 
-    private final PlayerDataManager data;
+    private final PlayerDataManager playerDataManager;
 
     public EventsListener(PlayerDataManager playerDataManager) {
-        data = playerDataManager;
+        this.playerDataManager = playerDataManager;
     }
 
     @EventHandler
-    public void InventoryClick(InventoryClickEvent event){
+    public void onInventoryClick(InventoryClickEvent event) {
 
-        if(event.getInventory().getHolder() instanceof ReportList list){
+        if (event.getInventory().getHolder() instanceof ReportList list) {
+            event.setCancelled(true);
             list.onClick(event);
-            event.setCancelled(true);
-        }
 
-        if(event.getInventory().getHolder() instanceof ReportOptions options){
+        } else if (event.getInventory().getHolder() instanceof ReportOptions options) {
+            event.setCancelled(true);
             options.onClick(event);
-            event.setCancelled(true);
-        }
 
-        if(event.getInventory().getHolder() instanceof ReportSelection selection){
+        } else if (event.getInventory().getHolder() instanceof ReportSelection selection) {
+            event.setCancelled(true);
             selection.onClick(event);
-            event.setCancelled(true);
         }
-
     }
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        String playerName = player.getName();
-        UUID playerUUID = player.getUniqueId();
-        if(!data.hasPlayerData(playerUUID)) {
-            data.addPlayer(playerUUID, playerName);
-        } else {
-            data.indexPlayer(playerUUID, playerName);
-        }
-    }
 
+        UUID playerUUID = player.getUniqueId();
+        String playerName = player.getName();
+
+        if (!playerDataManager.hasPlayerData(playerUUID)) {
+            playerDataManager.addPlayer(playerUUID, playerName);
+            return;
+        }
+
+        playerDataManager.indexPlayer(playerUUID, playerName);
+    }
 }

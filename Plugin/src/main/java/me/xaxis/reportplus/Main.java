@@ -137,7 +137,9 @@ public final class Main extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new EventsListener(playerDataManager), this);
         getCommand("report").setExecutor(new ReportCommand(reportTypeManager, reportService, langConfig));
         getCommand("reports").setExecutor(new Reports(reportManager, playerDataManager, langConfig));
-        getCommand("reports").setTabCompleter(new ReportsTabCompleter());
+        getCommand("reports").setTabCompleter(
+                new ReportsTabCompleter(playerDataManager)
+        );
     }
 
     @Override

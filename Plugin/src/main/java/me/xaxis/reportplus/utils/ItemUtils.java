@@ -6,33 +6,42 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.List;
 
-public class ItemUtils extends ItemStack{
+public final class ItemUtils {
 
-    private final ItemMeta itemMeta;
+    private final ItemStack item;
+    private final ItemMeta meta;
 
-    public ItemUtils(Material material){
-        super(material);
-        itemMeta = getItemMeta();
+    public ItemUtils(Material material) {
+        this.item = new ItemStack(material);
+        this.meta = item.getItemMeta();
     }
 
-    public ItemUtils lore(List<String> lore){
-        if(lore == null || lore.isEmpty()) return this;
-        itemMeta.setLore(lore.stream().map(Utils::chat).toList());
-        return this;
-    }
-
-    public ItemUtils setTitle(String s, boolean colorCoded){
-        if(colorCoded) {
-            itemMeta.setDisplayName(Utils.chat(s));
-        }else {
-            itemMeta.setDisplayName(s);
+    public ItemUtils lore(List<String> lore) {
+        if (lore == null || lore.isEmpty()) {
+            return this;
         }
+
+        meta.setLore(
+                lore.stream()
+                        .map(Utils::chat)
+                        .toList()
+        );
+
         return this;
     }
 
-    public ItemStack build(){
-        setItemMeta(itemMeta);
+    public ItemUtils setTitle(String title, boolean colorCoded) {
+        if (colorCoded) {
+            meta.setDisplayName(Utils.chat(title));
+        } else {
+            meta.setDisplayName(title);
+        }
+
         return this;
     }
 
+    public ItemStack build() {
+        item.setItemMeta(meta);
+        return item;
+    }
 }
