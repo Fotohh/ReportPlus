@@ -7,39 +7,46 @@ report-types:
     lore:
       - "&7Left or right click"
       - "&7to select this report"
+    slot: 0
   nuker:
     material: 'TNT'
     display-name: '&4NUKER'
     lore:
       - "&7Left or right click"
       - "&7to select this report"
+    slot: 1
   aimbot:
     material: 'BOW'
     display-name: '&4AIMBOT'
     lore:
       - "&7Left or right click"
       - "&7to select this report"
+    slot: 2
   flying:
     material: 'FEATHER'
     display-name: '&4FLYING'
     lore:
       - "&7Left or right click"
       - "&7to select this report"
+    slot: 3
   kill-aura:
     material: 'BLAZE_POWDER'
     display-name: '&4KILL AURA'
     lore:
       - "&7Left or right click"
       - "&7to select this report"
+    slot: 4
   velocity:
     material: 'ANVIL'
     display-name: '&4VELOCITY'
     lore:
       - "&7Left or right click"
       - "&7to select this report"
+    slot: 5
   auto-clicking:
     material: 'IRON_SWORD'
     display-name: '&4AUTO CLICKING'
     lore:
       - "&7Left or right click"
       - "&7to select this report"
+    slot: 6

@@ -57,7 +57,7 @@ public class ReportManager{
 
     private void indexReport(Report report) {
         reports.computeIfAbsent(report.getTargetUUID(),
-        _ -> new HashMap<>()).put(report.getReportUUID(), report);
+        ignored -> new HashMap<>()).put(report.getReportUUID(), report);
     }
 
     private boolean removeReport(UUID playerUUID, UUID reportUUID) {
