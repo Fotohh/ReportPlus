@@ -127,8 +127,8 @@ public final class ReportOptions implements InventoryHolder {
 
             case DELETE_SLOT -> {
                 boolean deleted = reportManager.deleteReport(
-                        report.getReportUUID(),
-                        report.getTargetUUID()
+                        report.getTargetUUID(),
+                        report.getReportUUID()
                 );
 
                 if (!deleted) {

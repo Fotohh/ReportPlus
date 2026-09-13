@@ -202,8 +202,8 @@ public final class Reports implements CommandExecutor {
         Report report = reports.getFirst();
 
         boolean deleted = reportManager.deleteReport(
-                report.getReportUUID(),
-                targetUUID
+                targetUUID,
+                report.getReportUUID()
         );
 
         if (!deleted) {
